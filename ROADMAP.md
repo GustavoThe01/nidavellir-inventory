@@ -11,10 +11,10 @@
 - **Conceitos:** build tool, ciclo de vida do Maven, regra de dependência
 
 ### Dia 02 — Modelo de domínio
-- [ ] Value objects com `record`: `Sku`, `Money` (BigDecimal!), `Quantity`
-- [ ] Entidade `Product` com invariantes (preço > 0, estoque ≥ 0)
-- [ ] Exceções de domínio (`InsufficientStockException`...)
-- [ ] Testes unitários do domínio (TDD: teste primeiro)
+- [x] Value objects com `record`: `Sku`, `Money` (BigDecimal!), `Quantity`
+- [x] Entidade `Product` com invariantes (preço > 0, estoque ≥ 0)
+- [x] Exceções de domínio (`InsufficientStockException`...)
+- [x] Testes unitários do domínio (TDD: teste primeiro)
 - **Conceitos:** encapsulamento, imutabilidade, por que não usar `double` para dinheiro
 
 ### Dia 03 — Repositório em memória e Streams

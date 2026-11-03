@@ -14,8 +14,8 @@ JDBC com transações e testes automatizados. A base antes do Spring.
 ![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 ![JUnit](https://img.shields.io/badge/JUnit-6-25A162?style=flat-square&logo=junit5&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-JDBC-003B57?style=flat-square&logo=sqlite&logoColor=white)
-![Roadmap](https://img.shields.io/badge/roadmap-dia_01_de_10-b45309?style=flat-square)
-![Testes](https://img.shields.io/badge/testes-1_passando-15803d?style=flat-square)
+![Roadmap](https://img.shields.io/badge/roadmap-dia_02_de_10-b45309?style=flat-square)
+![Testes](https://img.shields.io/badge/testes-39_passando-15803d?style=flat-square)
 
 </div>
 
@@ -262,7 +262,7 @@ classDiagram
 
 | Semana | Dias | Tema | Progresso |
 |---|---|---|---|
-| 1 | 01–05 | Fundação, domínio, Streams, JDBC + SQLite, transações | 🟧⬜⬜⬜⬜ |
+| 1 | 01–05 | Fundação, domínio, Streams, JDBC + SQLite, transações | 🟧🟧⬜⬜⬜ |
 | 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | ⬜⬜⬜⬜⬜ |
 
 Detalhes no [ROADMAP.md](ROADMAP.md) · Mudanças no [CHANGELOG.md](CHANGELOG.md).
@@ -307,7 +307,7 @@ java -cp target/classes dev.gustavo.nidavellir.cli.NidavellirApp
 
 | Tipo | Ferramentas | Situação |
 |---|---|---|
-| Unitários (domínio) | JUnit 6 + AssertJ | 🟡 1 teste de fumaça |
+| Unitários (domínio) | JUnit 6 + AssertJ | ✅ 38 testes (Product, Sku, Money, Quantity) + 1 da CLI |
 | Com mocks (aplicação) | Mockito | ⏳ Dia 05 |
 | Integração (JDBC) | SQLite em arquivo temporário | ⏳ Dia 05 |
 | Cobertura | JaCoCo (meta ≥ 80% no domínio) | ⏳ Dia 10 |
@@ -325,7 +325,7 @@ nidavellir-inventory/
 │   └── assets/                       # ✅ banner e imagens
 ├── src/
 │   ├── main/java/dev/gustavo/nidavellir/
-│   │   ├── domain/                   # ⏳ Dia 02 — Product, Sku, Money, regras
+│   │   ├── domain/                   # ✅ Product, Sku, Money, Quantity, exceções
 │   │   ├── application/              # ⏳ Dia 03 — casos de uso e portas
 │   │   ├── infrastructure/           # ⏳ Dia 04 — JDBC, CSV, JSON
 │   │   └── cli/                      # ✅ NidavellirApp (menu no Dia 07)
@@ -343,7 +343,7 @@ nidavellir-inventory/
 Mantenho aqui um checklist vivo do que ainda vou incrementar neste repositório.
 
 **Projeto**
-- [ ] Value objects e entidade `Product` com testes (Dia 02)
+- [x] Value objects e entidade `Product` com testes (Dia 02)
 - [ ] Repositório em memória e relatórios com Streams (Dia 03)
 - [ ] Persistência JDBC + SQLite (Dia 04)
 - [ ] Movimentações com transação (Dia 05)

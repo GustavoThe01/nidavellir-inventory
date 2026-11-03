@@ -11,3 +11,7 @@ e [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Ponto de entrada `NidavellirApp` com teste de fumaça.
 - Pipeline de CI no GitHub Actions.
 - ADR 0001 — arquitetura em camadas.
+- Value objects `Sku`, `Money` (com `BigDecimal`) e `Quantity`, imutáveis e validados na criação.
+- Entidade `Product` com invariantes (preço maior que zero, estoque nunca negativo) e controle de estoque mínimo.
+- Exceções de domínio `InvalidValueException` e `InsufficientStockException`.
+- 38 testes unitários do domínio.

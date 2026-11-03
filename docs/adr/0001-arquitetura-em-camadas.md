@@ -6,7 +6,7 @@
 ## Contexto
 O Nidavellir é uma aplicação de console sem framework. Mesmo pequena, ela vai trocar de
 persistência (memória → JDBC/SQLite) e de interface (CLI, talvez JavaFX no futuro).
-Precisamos que essas trocas não exijam mudar a regra de negócio.
+Quero que essas trocas não exijam mudar a regra de negócio.
 
 ## Decisão
 Organizar o código em quatro pacotes, com dependências apontando sempre para dentro:

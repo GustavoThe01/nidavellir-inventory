@@ -27,9 +27,9 @@ JDBC com transações e testes automatizados. A base antes do Spring.
   <tr>
     <td width="62%">
 
-**Nidavellir** é o segundo projeto do meu portfólio público de Desenvolvedor Pleno, idealizado e mantido por **Gustavo Osterno Thé**.
+Eu sou o **Gustavo Osterno Thé**, e o **Nidavellir** é um dos cinco projetos do meu portfólio público de Desenvolvedor Pleno. Idealizei, desenvolvo e mantenho este repositório.
 
-A proposta é provar domínio de **Java e de orientação a objetos sem a ajuda de frameworks**. Tudo que o Spring faria "por mágica" (injeção de dependência, transações, repositórios) aqui é feito à mão, de forma explícita e testada.
+Com ele quero mostrar domínio de **Java e de orientação a objetos sem a ajuda de frameworks**. Tudo o que o Spring faria "por mágica" (injeção de dependência, transações, repositórios), aqui eu faço à mão, de forma explícita e testada.
 
     </td>
     <td width="38%">
@@ -76,15 +76,17 @@ A proposta é provar domínio de **Java e de orientação a objetos sem a ajuda 
 | `record`, `sealed`, pattern matching | **4** camadas com regra de dependência | JUnit 6 · AssertJ · Mockito | **1** ADR registrado |
 | virtual threads | SOLID do começo ao fim | CI a cada push | Conventional Commits |
 
+<sub>Metas para o fim do roadmap. O estado atual está nos badges, na seção <a href="#-testes">Testes</a> e em <a href="#-o-que-ainda-falta">O que ainda falta</a>.</sub>
+
 </div>
 
 ---
 
 ## ⚒ A origem do nome
 
-> *Nas sagas nórdicas, Nidavellir é o reino subterrâneo dos anões, os maiores ferreiros dos Nove Mundos.*
+> *Na mitologia nórdica, Nidavellir ("campos escuros") é a morada dos anões, os grandes ferreiros dos Nove Mundos.*
 
-Foi lá que nasceram o martelo de Thor e o anel de Odin. Os anões eram conhecidos por **contar e guardar cada peça que forjavam**. Por isso o nome: o Nidavellir é um sistema de estoque onde cada item tem origem, quantidade e histórico, e onde nada entra ou sai sem registro.
+Foram anões ferreiros que forjaram tesouros como o martelo de Thor, o Mjölnir, e o anel de Odin, o Draupnir. Gosto de imaginar essas forjas como o primeiro almoxarifado da história: cada peça feita, contada e guardada. Por isso escolhi o nome. O Nidavellir é um sistema de estoque em que cada item tem origem, quantidade e histórico, e nada entra ou sai sem registro.
 
 ---
 
@@ -105,7 +107,7 @@ Foi lá que nasceram o martelo de Thor e o anel de Odin. Os anões eram conhecid
 
 ## 🏛️ Arquitetura
 
-O código é dividido em quatro camadas, e **as dependências sempre apontam para dentro**: o domínio não conhece banco, console nem arquivo. Decisão registrada no [ADR 0001](docs/adr/0001-arquitetura-em-camadas.md).
+Dividi o código em quatro camadas, e **as dependências sempre apontam para dentro**: o domínio não conhece banco, console nem arquivo. Registrei essa decisão no [ADR 0001](docs/adr/0001-arquitetura-em-camadas.md).
 
 ```mermaid
 flowchart LR
@@ -245,10 +247,10 @@ classDiagram
 
 ## 🧭 Metodologias e decisões
 
-- **TDD no domínio** — o teste nasce antes da regra.
-- **Roadmap diário público** — uma issue, uma branch e um PR por dia. Veja o [ROADMAP.md](ROADMAP.md).
+- **TDD no domínio** — escrevo o teste antes da regra.
+- **Roadmap diário público** — avanço um dia de cada vez e registro tudo no [ROADMAP.md](ROADMAP.md).
 - **Conventional Commits** e **versionamento semântico** com tags.
-- **ADRs** para cada decisão estrutural.
+- **ADRs** — registro cada decisão estrutural com contexto e alternativas.
 
 | ADR | Decisão | Status |
 |---|---|---|
@@ -338,7 +340,7 @@ nidavellir-inventory/
 
 ## 🧩 O que ainda falta
 
-Checklist vivo do que ainda precisa ser incrementado neste repositório.
+Mantenho aqui um checklist vivo do que ainda vou incrementar neste repositório.
 
 **Projeto**
 - [ ] Value objects e entidade `Product` com testes (Dia 02)
@@ -365,14 +367,14 @@ Checklist vivo do que ainda precisa ser incrementado neste repositório.
 
 | Projeto | Stack | Relação |
 |---|---|---|
-| ☿ [Mercurium](https://github.com/GustavoThe01/mercurium-sql) | SQLite | Base de modelagem e SQL usada aqui no JDBC |
+| ☿ [Mercurium](https://github.com/GustavoThe01/mercurium-sql) | SQLite | Os mesmos fundamentos de modelagem e SQL que aplico aqui no JDBC |
 | ⚒ **Nidavellir** | Java 21 | *você está aqui* |
-| ⚖ [Plutus](https://github.com/GustavoThe01/plutus-ledger) | C# + Dapper | O mesmo nível de fundamento, agora em .NET |
-| ♾ [Moirai](https://github.com/GustavoThe01/moirai-taskflow) | Spring Boot | **Próximo passo em Java**: o que aqui é manual, lá vira framework |
+| ⚖ [Plutus](https://github.com/GustavoThe01/plutus-ledger) | C# + Dapper | O mesmo nível de fundamento, em .NET |
+| ♾ [Moirai](https://github.com/GustavoThe01/moirai-taskflow) | Spring Boot | **O par deste projeto em Java**: o que aqui faço à mão, lá fica com o framework |
 | ✦ [Bifrost](https://github.com/GustavoThe01/bifrost-orders) | ASP.NET Core | API completa em .NET |
 
 <div align="center">
 
-<sub>Forjado com ☕ por <a href="https://github.com/GustavoThe01">Gustavo Osterno Thé</a></sub>
+<sub>Forjado por mim, com ☕ · <a href="https://github.com/GustavoThe01">Gustavo Osterno Thé</a></sub>
 
 </div>

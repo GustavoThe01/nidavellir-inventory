@@ -18,9 +18,9 @@
 - **Conceitos:** encapsulamento, imutabilidade, por que não usar `double` para dinheiro
 
 ### Dia 03 — Repositório em memória e Streams
-- [ ] Interface `ProductRepository` (Inversão de Dependência)
-- [ ] `InMemoryProductRepository` com `Map`
-- [ ] Consultas com Streams: por categoria, valor total em estoque, abaixo do mínimo
+- [x] Interface `ProductRepository` (Inversão de Dependência)
+- [x] `InMemoryProductRepository` com `Map`
+- [x] Consultas com Streams: por categoria, valor total em estoque, abaixo do mínimo
 - **Conceitos:** `List` vs `Set` vs `Map`, `equals/hashCode`, `Optional`
 
 ### Dia 04 — JDBC + SQLite

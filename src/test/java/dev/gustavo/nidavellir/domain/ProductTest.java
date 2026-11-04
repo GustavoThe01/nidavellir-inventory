@@ -10,8 +10,10 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Product")
 class ProductTest {
 
+    private static final Category FORGE = Category.of("Forja");
+
     private static Product hammer() {
-        return Product.create(Sku.of("MJ-001"), "Martelo de forja", Money.of("149.90"), Quantity.of(5));
+        return Product.create(Sku.of("MJ-001"), "Martelo de forja", FORGE, Money.of("149.90"), Quantity.of(5));
     }
 
     @Nested
@@ -27,14 +29,14 @@ class ProductTest {
         @Test
         @DisplayName("remove espaços nas pontas do nome")
         void stripsName() {
-            Product product = Product.create(Sku.of("MJ-002"), "  Bigorna  ", Money.of("10"), Quantity.ZERO);
+            Product product = Product.create(Sku.of("MJ-002"), "  Bigorna  ", FORGE, Money.of("10"), Quantity.ZERO);
             assertThat(product.name()).isEqualTo("Bigorna");
         }
 
         @Test
         @DisplayName("rejeita preço zero")
         void rejectsZeroPrice() {
-            assertThatThrownBy(() -> Product.create(Sku.of("MJ-003"), "Tenaz", Money.ZERO, Quantity.ZERO))
+            assertThatThrownBy(() -> Product.create(Sku.of("MJ-003"), "Tenaz", FORGE, Money.ZERO, Quantity.ZERO))
                     .isInstanceOf(InvalidValueException.class)
                     .hasMessageContaining("maior que zero");
         }
@@ -42,7 +44,7 @@ class ProductTest {
         @Test
         @DisplayName("rejeita nome muito curto")
         void rejectsShortName() {
-            assertThatThrownBy(() -> Product.create(Sku.of("MJ-004"), "X", Money.of("1"), Quantity.ZERO))
+            assertThatThrownBy(() -> Product.create(Sku.of("MJ-004"), "X", FORGE, Money.of("1"), Quantity.ZERO))
                     .isInstanceOf(InvalidValueException.class);
         }
     }
@@ -123,8 +125,8 @@ class ProductTest {
     @Test
     @DisplayName("a identidade é o SKU")
     void identityIsSku() {
-        Product a = Product.create(Sku.of("MJ-001"), "Martelo", Money.of("1"), Quantity.ZERO);
-        Product b = Product.create(Sku.of("mj-001"), "Outro nome", Money.of("2"), Quantity.ZERO);
+        Product a = Product.create(Sku.of("MJ-001"), "Martelo", FORGE, Money.of("1"), Quantity.ZERO);
+        Product b = Product.create(Sku.of("mj-001"), "Outro nome", FORGE, Money.of("2"), Quantity.ZERO);
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
     }
 }

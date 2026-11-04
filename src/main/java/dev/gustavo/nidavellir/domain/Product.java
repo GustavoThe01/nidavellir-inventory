@@ -22,21 +22,23 @@ public final class Product {
 
     private final Sku sku;
     private String name;
+    private Category category;
     private Money price;
     private Quantity stock;
     private Quantity minimumStock;
 
-    private Product(Sku sku, String name, Money price, Quantity stock, Quantity minimumStock) {
+    private Product(Sku sku, String name, Category category, Money price, Quantity stock, Quantity minimumStock) {
         this.sku = Objects.requireNonNull(sku, "sku");
         this.name = validateName(name);
+        this.category = Objects.requireNonNull(category, "category");
         this.price = validatePrice(price);
         this.stock = Objects.requireNonNull(stock, "stock");
         this.minimumStock = Objects.requireNonNull(minimumStock, "minimumStock");
     }
 
     /** Cadastra um produto novo, sempre com estoque zerado. A primeira entrada é uma movimentação. */
-    public static Product create(Sku sku, String name, Money price, Quantity minimumStock) {
-        return new Product(sku, name, price, Quantity.ZERO, minimumStock);
+    public static Product create(Sku sku, String name, Category category, Money price, Quantity minimumStock) {
+        return new Product(sku, name, category, price, Quantity.ZERO, minimumStock);
     }
 
     public void addStock(Quantity quantity) {
@@ -54,6 +56,10 @@ public final class Product {
 
     public void rename(String newName) {
         name = validateName(newName);
+    }
+
+    public void changeCategory(Category newCategory) {
+        category = Objects.requireNonNull(newCategory, "newCategory");
     }
 
     public void changePrice(Money newPrice) {
@@ -79,6 +85,10 @@ public final class Product {
 
     public String name() {
         return name;
+    }
+
+    public Category category() {
+        return category;
     }
 
     public Money price() {

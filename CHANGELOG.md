@@ -15,3 +15,7 @@ e [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Entidade `Product` com invariantes (preço maior que zero, estoque nunca negativo) e controle de estoque mínimo.
 - Exceções de domínio `InvalidValueException` e `InsufficientStockException`.
 - 38 testes unitários do domínio.
+- Porta `ProductRepository` e implementação `InMemoryProductRepository`.
+- `InventoryQueryService`: consultas com Streams por categoria, valor total em estoque, valor por categoria e produtos abaixo do mínimo.
+- Value object `Category`, agora obrigatório no cadastro de `Product`.
+- 10 testes novos, 5 deles usando Mockito.

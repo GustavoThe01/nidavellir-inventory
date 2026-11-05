@@ -19,3 +19,6 @@ e [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - `InventoryQueryService`: consultas com Streams por categoria, valor total em estoque, valor por categoria e produtos abaixo do mínimo.
 - Value object `Category`, agora obrigatório no cadastro de `Product`.
 - 10 testes novos, 5 deles usando Mockito.
+- Persistência com JDBC puro e SQLite: `ConnectionFactory`, `JdbcProductRepository` e schema criado na inicialização.
+- Contrato `ProductRepositoryContract`: os mesmos testes validam as implementações em memória e JDBC.
+- 13 testes novos, incluindo SQL injection e preço gravado em centavos.

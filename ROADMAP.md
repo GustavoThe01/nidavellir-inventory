@@ -24,9 +24,9 @@
 - **Conceitos:** `List` vs `Set` vs `Map`, `equals/hashCode`, `Optional`
 
 ### Dia 04 — JDBC + SQLite
-- [ ] Driver `sqlite-jdbc`, `ConnectionFactory`, criação de schema na inicialização
-- [ ] `JdbcProductRepository` com `PreparedStatement` e try-with-resources
-- [ ] Trocar a implementação sem alterar a camada de aplicação (prova do DIP)
+- [x] Driver `sqlite-jdbc`, `ConnectionFactory`, criação de schema na inicialização
+- [x] `JdbcProductRepository` com `PreparedStatement` e try-with-resources
+- [x] Trocar a implementação sem alterar a camada de aplicação (prova do DIP)
 - **Conceitos:** SQL injection, gerenciamento de recursos
 
 ### Dia 05 — Movimentações e transações

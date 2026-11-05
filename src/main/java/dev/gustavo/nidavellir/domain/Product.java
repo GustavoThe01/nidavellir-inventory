@@ -41,6 +41,12 @@ public final class Product {
         return new Product(sku, name, category, price, Quantity.ZERO, minimumStock);
     }
 
+    /** Reconstrói um produto já existente a partir da persistência, com as mesmas validações do cadastro. */
+    public static Product restore(Sku sku, String name, Category category, Money price, Quantity stock,
+                                  Quantity minimumStock) {
+        return new Product(sku, name, category, price, stock, minimumStock);
+    }
+
     public void addStock(Quantity quantity) {
         requirePositive(quantity, "entrada");
         stock = stock.add(quantity);

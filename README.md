@@ -14,8 +14,8 @@ JDBC com transações e testes automatizados. A base antes do Spring.
 ![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 ![JUnit](https://img.shields.io/badge/JUnit-6-25A162?style=flat-square&logo=junit5&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-JDBC-003B57?style=flat-square&logo=sqlite&logoColor=white)
-![Roadmap](https://img.shields.io/badge/roadmap-dia_03_de_10-b45309?style=flat-square)
-![Testes](https://img.shields.io/badge/testes-49_passando-15803d?style=flat-square)
+![Roadmap](https://img.shields.io/badge/roadmap-dia_04_de_10-b45309?style=flat-square)
+![Testes](https://img.shields.io/badge/testes-62_passando-15803d?style=flat-square)
 
 </div>
 
@@ -263,7 +263,7 @@ classDiagram
 
 | Semana | Dias | Tema | Progresso |
 |---|---|---|---|
-| 1 | 01–05 | Fundação, domínio, Streams, JDBC + SQLite, transações | 🟧🟧🟧⬜⬜ |
+| 1 | 01–05 | Fundação, domínio, Streams, JDBC + SQLite, transações | 🟧🟧🟧🟧⬜ |
 | 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | ⬜⬜⬜⬜⬜ |
 
 Detalhes no [ROADMAP.md](ROADMAP.md) · Mudanças no [CHANGELOG.md](CHANGELOG.md).
@@ -310,8 +310,8 @@ java -cp target/classes dev.gustavo.nidavellir.cli.NidavellirApp
 |---|---|---|
 | Unitários (domínio) | JUnit 6 + AssertJ | ✅ 38 testes (Product, Sku, Money, Quantity) + 1 da CLI |
 | Com mocks (aplicação) | Mockito | ✅ 5 testes (consultas do estoque) |
-| Repositório em memória | JUnit 6 + AssertJ | ✅ 5 testes |
-| Integração (JDBC) | SQLite em arquivo temporário | ⏳ Dia 05 |
+| Contrato do repositório | Os mesmos 6 testes rodam na versão em memória e na JDBC | ✅ 12 testes |
+| Integração (JDBC) | SQLite em arquivo temporário, incluindo SQL injection | ✅ 6 testes |
 | Cobertura | JaCoCo (meta ≥ 80% no domínio) | ⏳ Dia 10 |
 
 ---
@@ -329,7 +329,7 @@ nidavellir-inventory/
 │   ├── main/java/dev/gustavo/nidavellir/
 │   │   ├── domain/                   # ✅ Product, Sku, Money, Quantity, exceções
 │   │   ├── application/              # ✅ ProductRepository, InventoryQueryService
-│   │   ├── infrastructure/           # ✅ repositório em memória · ⏳ Dia 04 — JDBC
+│   │   ├── infrastructure/           # ✅ repositórios em memória e JDBC + SQLite
 │   │   └── cli/                      # ✅ NidavellirApp (menu no Dia 07)
 │   └── test/java/...                 # ✅ testes
 ├── pom.xml
@@ -347,7 +347,7 @@ Mantenho aqui um checklist vivo do que ainda vou incrementar neste repositório.
 **Projeto**
 - [x] Value objects e entidade `Product` com testes (Dia 02)
 - [x] Repositório em memória e relatórios com Streams (Dia 03)
-- [ ] Persistência JDBC + SQLite (Dia 04)
+- [x] Persistência JDBC + SQLite (Dia 04)
 - [ ] Movimentações com transação (Dia 05)
 - [ ] Strategy, Observer, Builder e Factory (Dia 06)
 - [ ] Menu interativo com Command (Dia 07)

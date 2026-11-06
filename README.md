@@ -14,8 +14,8 @@ JDBC com transações e testes automatizados. A base antes do Spring.
 ![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 ![JUnit](https://img.shields.io/badge/JUnit-6-25A162?style=flat-square&logo=junit5&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-JDBC-003B57?style=flat-square&logo=sqlite&logoColor=white)
-![Roadmap](https://img.shields.io/badge/roadmap-dia_04_de_10-b45309?style=flat-square)
-![Testes](https://img.shields.io/badge/testes-62_passando-15803d?style=flat-square)
+![Roadmap](https://img.shields.io/badge/roadmap-dia_05_de_10-b45309?style=flat-square)
+![Testes](https://img.shields.io/badge/testes-70_passando-15803d?style=flat-square)
 
 </div>
 
@@ -142,7 +142,7 @@ sequenceDiagram
     participant DB as SQLite
 
     U->>C: "Registrar saída: SKU-001, 5 un."
-    C->>S: removeStock(sku, 5)
+    C->>S: dispatch(sku, 5, motivo)
     S->>R: findBySku(sku)
     R->>DB: SELECT ... WHERE sku = ?
     DB-->>R: linha
@@ -263,7 +263,7 @@ classDiagram
 
 | Semana | Dias | Tema | Progresso |
 |---|---|---|---|
-| 1 | 01–05 | Fundação, domínio, Streams, JDBC + SQLite, transações | 🟧🟧🟧🟧⬜ |
+| 1 | 01–05 | Fundação, domínio, Streams, JDBC + SQLite, transações | 🟧🟧🟧🟧🟧 |
 | 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | ⬜⬜⬜⬜⬜ |
 
 Detalhes no [ROADMAP.md](ROADMAP.md) · Mudanças no [CHANGELOG.md](CHANGELOG.md).
@@ -312,6 +312,7 @@ java -cp target/classes dev.gustavo.nidavellir.cli.NidavellirApp
 | Com mocks (aplicação) | Mockito | ✅ 5 testes (consultas do estoque) |
 | Contrato do repositório | Os mesmos 6 testes rodam na versão em memória e na JDBC | ✅ 12 testes |
 | Integração (JDBC) | SQLite em arquivo temporário, incluindo SQL injection | ✅ 6 testes |
+| Movimentações | Transação com commit e rollback em SQLite real | ✅ 8 testes |
 | Cobertura | JaCoCo (meta ≥ 80% no domínio) | ⏳ Dia 10 |
 
 ---
@@ -328,8 +329,8 @@ nidavellir-inventory/
 ├── src/
 │   ├── main/java/dev/gustavo/nidavellir/
 │   │   ├── domain/                   # ✅ Product, Sku, Money, Quantity, exceções
-│   │   ├── application/              # ✅ ProductRepository, InventoryQueryService
-│   │   ├── infrastructure/           # ✅ repositórios em memória e JDBC + SQLite
+│   │   ├── application/              # ✅ portas, consultas e StockService
+│   │   ├── infrastructure/           # ✅ repositórios e transação com JDBC + SQLite
 │   │   └── cli/                      # ✅ NidavellirApp (menu no Dia 07)
 │   └── test/java/...                 # ✅ testes
 ├── pom.xml
@@ -348,7 +349,7 @@ Mantenho aqui um checklist vivo do que ainda vou incrementar neste repositório.
 - [x] Value objects e entidade `Product` com testes (Dia 02)
 - [x] Repositório em memória e relatórios com Streams (Dia 03)
 - [x] Persistência JDBC + SQLite (Dia 04)
-- [ ] Movimentações com transação (Dia 05)
+- [x] Movimentações com transação (Dia 05)
 - [ ] Strategy, Observer, Builder e Factory (Dia 06)
 - [ ] Menu interativo com Command (Dia 07)
 - [ ] `sealed` + pattern matching, exportação CSV/JSON (Dia 08)

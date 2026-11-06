@@ -30,9 +30,9 @@
 - **Conceitos:** SQL injection, gerenciamento de recursos
 
 ### Dia 05 — Movimentações e transações
-- [ ] `StockMovement` (entrada, saída, ajuste) e histórico
-- [ ] `StockService` com transação manual (commit/rollback)
-- [ ] Testes de integração com banco em arquivo temporário
+- [x] `StockMovement` (entrada, saída, ajuste) e histórico
+- [x] `StockService` com transação manual (commit/rollback)
+- [x] Testes de integração com banco em arquivo temporário
 - **Conceitos:** atomicidade, `setAutoCommit(false)`
 
 ## Semana 2 — Padrões, interface e qualidade

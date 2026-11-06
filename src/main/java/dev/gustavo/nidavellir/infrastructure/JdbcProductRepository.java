@@ -20,7 +20,7 @@ import java.util.Optional;
  * Implementação da porta {@link ProductRepository} com JDBC puro.
  *
  * <p>Todo valor vem de {@link PreparedStatement}, nunca de texto concatenado: é o que impede SQL injection.
- * As conexões, comandos e resultados ficam em try-with-resources, que os fecha mesmo em caso de erro.
+ * Os comandos e resultados ficam em try-with-resources, que os fecha mesmo em caso de erro.
  */
 public final class JdbcProductRepository implements ProductRepository {
 
@@ -40,24 +40,36 @@ public final class JdbcProductRepository implements ProductRepository {
     private static final String SELECT_ALL = "SELECT %s FROM product ORDER BY sku".formatted(COLUMNS);
     private static final String DELETE_BY_SKU = "DELETE FROM product WHERE sku = ?";
 
-    private final ConnectionFactory connections;
+    private final ConnectionScope scope;
 
     public JdbcProductRepository(ConnectionFactory connections) {
-        this.connections = Objects.requireNonNull(connections, "connections");
+        this(ConnectionScope.perOperation(Objects.requireNonNull(connections, "connections")));
+    }
+
+    private JdbcProductRepository(ConnectionScope scope) {
+        this.scope = scope;
+    }
+
+    /** Repositório que participa de uma transação em andamento. */
+    static JdbcProductRepository boundTo(Connection connection) {
+        return new JdbcProductRepository(ConnectionScope.shared(connection));
     }
 
     @Override
     public void save(Product product) {
         Objects.requireNonNull(product, "product");
-        try (Connection connection = connections.open();
-             PreparedStatement statement = connection.prepareStatement(UPSERT)) {
-            statement.setString(1, product.sku().value());
-            statement.setString(2, product.name());
-            statement.setString(3, product.category().name());
-            statement.setLong(4, toCents(product.price()));
-            statement.setInt(5, product.stock().value());
-            statement.setInt(6, product.minimumStock().value());
-            statement.executeUpdate();
+        try {
+            scope.run(connection -> {
+                try (PreparedStatement statement = connection.prepareStatement(UPSERT)) {
+                    statement.setString(1, product.sku().value());
+                    statement.setString(2, product.name());
+                    statement.setString(3, product.category().name());
+                    statement.setLong(4, toCents(product.price()));
+                    statement.setInt(5, product.stock().value());
+                    statement.setInt(6, product.minimumStock().value());
+                    return statement.executeUpdate();
+                }
+            });
         } catch (SQLException exception) {
             throw new PersistenceException("Não consegui salvar o produto " + product.sku() + ".", exception);
         }
@@ -65,12 +77,15 @@ public final class JdbcProductRepository implements ProductRepository {
 
     @Override
     public Optional<Product> findBySku(Sku sku) {
-        try (Connection connection = connections.open();
-             PreparedStatement statement = connection.prepareStatement(SELECT_BY_SKU)) {
-            statement.setString(1, sku.value());
-            try (ResultSet row = statement.executeQuery()) {
-                return row.next() ? Optional.of(toProduct(row)) : Optional.empty();
-            }
+        try {
+            return scope.run(connection -> {
+                try (PreparedStatement statement = connection.prepareStatement(SELECT_BY_SKU)) {
+                    statement.setString(1, sku.value());
+                    try (ResultSet row = statement.executeQuery()) {
+                        return row.next() ? Optional.of(toProduct(row)) : Optional.<Product>empty();
+                    }
+                }
+            });
         } catch (SQLException exception) {
             throw new PersistenceException("Não consegui buscar o produto " + sku + ".", exception);
         }
@@ -78,14 +93,17 @@ public final class JdbcProductRepository implements ProductRepository {
 
     @Override
     public List<Product> findAll() {
-        try (Connection connection = connections.open();
-             PreparedStatement statement = connection.prepareStatement(SELECT_ALL);
-             ResultSet row = statement.executeQuery()) {
-            List<Product> products = new ArrayList<>();
-            while (row.next()) {
-                products.add(toProduct(row));
-            }
-            return List.copyOf(products);
+        try {
+            return scope.run(connection -> {
+                try (PreparedStatement statement = connection.prepareStatement(SELECT_ALL);
+                     ResultSet row = statement.executeQuery()) {
+                    List<Product> products = new ArrayList<>();
+                    while (row.next()) {
+                        products.add(toProduct(row));
+                    }
+                    return List.copyOf(products);
+                }
+            });
         } catch (SQLException exception) {
             throw new PersistenceException("Não consegui listar os produtos.", exception);
         }
@@ -93,10 +111,13 @@ public final class JdbcProductRepository implements ProductRepository {
 
     @Override
     public boolean deleteBySku(Sku sku) {
-        try (Connection connection = connections.open();
-             PreparedStatement statement = connection.prepareStatement(DELETE_BY_SKU)) {
-            statement.setString(1, sku.value());
-            return statement.executeUpdate() > 0;
+        try {
+            return scope.run(connection -> {
+                try (PreparedStatement statement = connection.prepareStatement(DELETE_BY_SKU)) {
+                    statement.setString(1, sku.value());
+                    return statement.executeUpdate() > 0;
+                }
+            });
         } catch (SQLException exception) {
             throw new PersistenceException("Não consegui remover o produto " + sku + ".", exception);
         }

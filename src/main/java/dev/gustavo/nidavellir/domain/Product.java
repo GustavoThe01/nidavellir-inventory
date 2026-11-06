@@ -60,6 +60,11 @@ public final class Product {
         stock = stock.subtract(quantity);
     }
 
+    /** Corrige o saldo para o valor encontrado em uma contagem física. Zero é um resultado válido. */
+    public void adjustStock(Quantity countedStock) {
+        stock = Objects.requireNonNull(countedStock, "countedStock");
+    }
+
     public void rename(String newName) {
         name = validateName(newName);
     }

@@ -22,3 +22,6 @@ e [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Persistência com JDBC puro e SQLite: `ConnectionFactory`, `JdbcProductRepository` e schema criado na inicialização.
 - Contrato `ProductRepositoryContract`: os mesmos testes validam as implementações em memória e JDBC.
 - 13 testes novos, incluindo SQL injection e preço gravado em centavos.
+- Movimentações de estoque: `StockMovement` (entrada, saída e ajuste) e histórico imutável em `stock_movement`.
+- `StockService` e a porta `InventoryTransaction`, com transação manual em `JdbcInventoryTransaction` (`setAutoCommit(false)`, commit e rollback).
+- 8 testes de integração, incluindo o rollback do saldo quando a gravação do histórico falha.

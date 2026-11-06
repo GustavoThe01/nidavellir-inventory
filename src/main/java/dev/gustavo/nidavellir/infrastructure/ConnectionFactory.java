@@ -39,7 +39,11 @@ public final class ConnectionFactory {
     /** Cria as tabelas que ainda não existem. Pode ser chamado a cada inicialização. */
     public void initializeSchema() {
         try (Connection connection = open(); Statement statement = connection.createStatement()) {
-            statement.executeUpdate(readSchema());
+            for (String command : readSchema().split(";")) {
+                if (!command.isBlank()) {
+                    statement.executeUpdate(command);
+                }
+            }
         } catch (SQLException | IOException exception) {
             throw new PersistenceException("Não consegui criar o schema do banco.", exception);
         }

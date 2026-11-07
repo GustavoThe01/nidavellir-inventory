@@ -38,9 +38,9 @@
 ## Semana 2 — Padrões, interface e qualidade
 
 ### Dia 06 — Design Patterns
-- [ ] **Strategy:** políticas de precificação/desconto
-- [ ] **Observer:** alerta quando o estoque fica abaixo do mínimo
-- [ ] **Builder** para `Product`, **Factory** para movimentações
+- [x] **Strategy:** políticas de precificação/desconto
+- [x] **Observer:** alerta quando o estoque fica abaixo do mínimo
+- [x] **Builder** para `Product`, **Factory** para movimentações
 - **Conceitos:** aberto/fechado (OCP), quando um padrão é exagero
 
 ### Dia 07 — CLI interativa

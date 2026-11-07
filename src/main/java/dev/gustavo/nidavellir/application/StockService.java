@@ -8,8 +8,8 @@ import dev.gustavo.nidavellir.domain.Sku;
 import dev.gustavo.nidavellir.domain.StockMovement;
 import dev.gustavo.nidavellir.domain.StockMovement.MovementType;
 import java.time.Clock;
+import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 /**
  * Casos de uso de movimentação de estoque. Saldo e histórico sempre mudam na mesma transação:
@@ -18,34 +18,49 @@ import java.util.function.Consumer;
 public final class StockService {
 
     private final InventoryTransaction transaction;
-    private final Clock clock;
+    private final StockMovementFactory movements;
+    private final List<StockLevelListener> listeners;
 
     public StockService(InventoryTransaction transaction, Clock clock) {
+        this(transaction, clock, List.of());
+    }
+
+    public StockService(InventoryTransaction transaction, Clock clock, List<StockLevelListener> listeners) {
         this.transaction = Objects.requireNonNull(transaction, "transaction");
-        this.clock = Objects.requireNonNull(clock, "clock");
+        this.movements = new StockMovementFactory(clock);
+        this.listeners = List.copyOf(listeners);
     }
 
     public StockMovement receive(Sku sku, Quantity quantity, String reason) {
-        return move(sku, MovementType.INBOUND, quantity, reason, product -> product.addStock(quantity));
+        return move(sku, MovementType.INBOUND, quantity, reason);
     }
 
     public StockMovement dispatch(Sku sku, Quantity quantity, String reason) {
-        return move(sku, MovementType.OUTBOUND, quantity, reason, product -> product.removeStock(quantity));
+        return move(sku, MovementType.OUTBOUND, quantity, reason);
     }
 
     public StockMovement adjust(Sku sku, Quantity countedStock, String reason) {
-        return move(sku, MovementType.ADJUSTMENT, countedStock, reason, product -> product.adjustStock(countedStock));
+        return move(sku, MovementType.ADJUSTMENT, countedStock, reason);
     }
 
-    private StockMovement move(Sku sku, MovementType type, Quantity quantity, String reason, Consumer<Product> change) {
-        return transaction.execute((Stores stores) -> {
+    private StockMovement move(Sku sku, MovementType type, Quantity quantity, String reason) {
+        Outcome outcome = transaction.execute((Stores stores) -> {
             Product product = stores.products().findBySku(sku).orElseThrow(() -> new ProductNotFoundException(sku));
-            change.accept(product);
+            boolean wasBelowMinimum = product.isBelowMinimum();
 
-            StockMovement movement = new StockMovement(sku, type, quantity, product.stock(), reason, clock.instant());
+            StockMovement movement = movements.apply(type, product, quantity, reason);
             stores.products().save(product);
             stores.movements().append(movement);
-            return movement;
+            return new Outcome(movement, product, !wasBelowMinimum && product.isBelowMinimum());
         });
+
+        // Avisa só depois do commit: um alerta de algo que foi desfeito seria um alarme falso.
+        if (outcome.crossedMinimum()) {
+            listeners.forEach(listener -> listener.onBelowMinimum(outcome.product()));
+        }
+        return outcome.movement();
+    }
+
+    private record Outcome(StockMovement movement, Product product, boolean crossedMinimum) {
     }
 }

@@ -25,3 +25,7 @@ e [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Movimentações de estoque: `StockMovement` (entrada, saída e ajuste) e histórico imutável em `stock_movement`.
 - `StockService` e a porta `InventoryTransaction`, com transação manual em `JdbcInventoryTransaction` (`setAutoCommit(false)`, commit e rollback).
 - 8 testes de integração, incluindo o rollback do saldo quando a gravação do histórico falha.
+- Strategy: `PricingPolicy` com preço cheio, `BulkDiscount`, `ClearanceDiscount` e `BestPrice`, que escolhe a política mais barata.
+- Observer: `StockLevelListener`, avisado depois do commit quando o estoque cruza o mínimo.
+- Builder para `Product` e `StockMovementFactory` para criar entradas, saídas e ajustes.
+- 20 testes novos.

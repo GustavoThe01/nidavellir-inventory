@@ -14,8 +14,8 @@ JDBC com transações e testes automatizados. A base antes do Spring.
 ![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 ![JUnit](https://img.shields.io/badge/JUnit-6-25A162?style=flat-square&logo=junit5&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-JDBC-003B57?style=flat-square&logo=sqlite&logoColor=white)
-![Roadmap](https://img.shields.io/badge/roadmap-dia_06_de_10-b45309?style=flat-square)
-![Testes](https://img.shields.io/badge/testes-90_passando-15803d?style=flat-square)
+![Roadmap](https://img.shields.io/badge/roadmap-dia_07_de_10-b45309?style=flat-square)
+![Testes](https://img.shields.io/badge/testes-97_passando-15803d?style=flat-square)
 
 </div>
 
@@ -226,13 +226,15 @@ classDiagram
 | **Observer** | `StockLevelListener`, avisado depois do commit | Desacopla a regra de quem precisa ser avisado |
 | **Builder** | `Product.builder()` | Objetos válidos com muitos campos opcionais |
 | **Factory** | `StockMovementFactory` | Centraliza a escolha do tipo correto |
-| **Command** | Opções do menu CLI (Dia 07) | Cada ação é isolada, testável e fácil de adicionar |
+| **Command** | `Command` e as opções em `Commands` | Cada ação é isolada, testável e fácil de adicionar |
 
-Repository, Strategy, Observer, Builder e Factory já estão no código. Alguns cuidados que tomei:
+Os seis padrões já estão no código. Alguns cuidados que tomei:
 
 - O **melhor preço** é um Composite de políticas: escolhe a mais barata e não soma descontos.
 - O aviso de estoque mínimo só dispara **depois do commit** e só quando o saldo **cruza** o mínimo. Se a gravação falha, ninguém é avisado de algo que não aconteceu.
 - `PricingPolicy` é uma interface funcional: uma promoção pontual cabe numa lambda, sem criar classe.
+- O menu é um mapa de opção para `Command`. Uma opção nova é uma classe nova registrada em `NidavellirApp`, sem `switch` crescendo.
+- Os comandos não têm `try/catch`. O `Menu` trata tudo num lugar só: regra de negócio violada aparece como mensagem, falha de banco aparece de forma genérica e vai para o log, e a sessão continua.
 
 ---
 
@@ -270,7 +272,7 @@ Repository, Strategy, Observer, Builder e Factory já estão no código. Alguns 
 | Semana | Dias | Tema | Progresso |
 |---|---|---|---|
 | 1 | 01–05 | Fundação, domínio, Streams, JDBC + SQLite, transações | 🟧🟧🟧🟧🟧 |
-| 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | 🟧⬜⬜⬜⬜ |
+| 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | 🟧🟧⬜⬜⬜ |
 
 Detalhes no [ROADMAP.md](ROADMAP.md) · Mudanças no [CHANGELOG.md](CHANGELOG.md).
 
@@ -300,10 +302,16 @@ No Windows (PowerShell/CMD):
 mvnw.cmd verify
 ```
 
-Executar a aplicação:
+Executar o menu (cria o `nidavellir.db` na pasta atual):
 
 ```bash
-java -cp target/classes dev.gustavo.nidavellir.cli.NidavellirApp
+./mvnw -q compile exec:java
+```
+
+Para usar outro arquivo de banco:
+
+```bash
+./mvnw -q compile exec:java -Dexec.args="estoque.db"
 ```
 
 > 📦 A partir do Dia 10 haverá um **jar executável** na aba *Releases*: `java -jar nidavellir.jar`.
@@ -314,12 +322,13 @@ java -cp target/classes dev.gustavo.nidavellir.cli.NidavellirApp
 
 | Tipo | Ferramentas | Situação |
 |---|---|---|
-| Unitários (domínio) | JUnit 6 + AssertJ | ✅ 38 testes (Product, Sku, Money, Quantity) + 1 da CLI |
+| Unitários (domínio) | JUnit 6 + AssertJ | ✅ 38 testes (Product, Sku, Money, Quantity) |
 | Com mocks (aplicação) | Mockito | ✅ 5 testes (consultas do estoque) |
 | Contrato do repositório | Os mesmos 6 testes rodam na versão em memória e na JDBC | ✅ 12 testes |
 | Integração (JDBC) | SQLite em arquivo temporário, incluindo SQL injection | ✅ 6 testes |
 | Movimentações | Transação com commit e rollback em SQLite real | ✅ 8 testes |
 | Design patterns | Strategy, Builder e Observer | ✅ 20 testes |
+| CLI | Sessões inteiras simuladas com texto: entrada inválida, alerta, erro de banco | ✅ 8 testes |
 | Cobertura | JaCoCo (meta ≥ 80% no domínio) | ⏳ Dia 10 |
 
 ---
@@ -338,7 +347,7 @@ nidavellir-inventory/
 │   │   ├── domain/                   # ✅ Product (com Builder), value objects, pricing/ (Strategy)
 │   │   ├── application/              # ✅ portas, StockService, Factory e Observer
 │   │   ├── infrastructure/           # ✅ repositórios e transação com JDBC + SQLite
-│   │   └── cli/                      # ✅ NidavellirApp (menu no Dia 07)
+│   │   └── cli/                      # ✅ menu com Command, entrada validada e erros centralizados
 │   └── test/java/...                 # ✅ testes
 ├── pom.xml
 ├── mvnw · mvnw.cmd
@@ -358,7 +367,7 @@ Mantenho aqui um checklist vivo do que ainda vou incrementar neste repositório.
 - [x] Persistência JDBC + SQLite (Dia 04)
 - [x] Movimentações com transação (Dia 05)
 - [x] Strategy, Observer, Builder e Factory (Dia 06)
-- [ ] Menu interativo com Command (Dia 07)
+- [x] Menu interativo com Command (Dia 07)
 - [ ] `sealed` + pattern matching, exportação CSV/JSON (Dia 08)
 - [ ] Importação paralela com virtual threads e logging (Dia 09)
 - [ ] JaCoCo, Spotless, jar executável e release `v1.0.0` (Dia 10)

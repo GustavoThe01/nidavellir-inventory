@@ -43,6 +43,14 @@ public final class StockService {
         return move(sku, MovementType.ADJUSTMENT, countedStock, reason);
     }
 
+    /** Histórico do produto, do mais antigo para o mais recente. */
+    public List<StockMovement> history(Sku sku) {
+        return transaction.execute((Stores stores) -> {
+            stores.products().findBySku(sku).orElseThrow(() -> new ProductNotFoundException(sku));
+            return stores.movements().findBySku(sku);
+        });
+    }
+
     private StockMovement move(Sku sku, MovementType type, Quantity quantity, String reason) {
         Outcome outcome = transaction.execute((Stores stores) -> {
             Product product = stores.products().findBySku(sku).orElseThrow(() -> new ProductNotFoundException(sku));

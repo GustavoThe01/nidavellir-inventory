@@ -29,3 +29,9 @@ e [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Observer: `StockLevelListener`, avisado depois do commit quando o estoque cruza o mínimo.
 - Builder para `Product` e `StockMovementFactory` para criar entradas, saídas e ajustes.
 - 20 testes novos.
+- Menu interativo com o padrão Command: cadastro, entrada, saída, ajuste, histórico, produtos abaixo do mínimo e valor por categoria.
+- `Terminal`, que valida cada entrada e pergunta de novo (aceita preço com vírgula, como 19,90).
+- Tratamento centralizado de exceções no `Menu`: a sessão continua depois de qualquer erro.
+- `CatalogService`, que impede cadastrar um SKU que já existe, e `StockService.history`.
+- `exec-maven-plugin` para rodar a CLI com `./mvnw -q compile exec:java`.
+- 7 testes novos de sessões completas.

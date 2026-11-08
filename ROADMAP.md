@@ -44,9 +44,9 @@
 - **Conceitos:** aberto/fechado (OCP), quando um padrão é exagero
 
 ### Dia 07 — CLI interativa
-- [ ] Menu com **Command pattern** (cada opção é um `Command`)
-- [ ] Validação de entrada e mensagens de erro amigáveis
-- [ ] Tratamento centralizado de exceções
+- [x] Menu com **Command pattern** (cada opção é um `Command`)
+- [x] Validação de entrada e mensagens de erro amigáveis
+- [x] Tratamento centralizado de exceções
 - **Conceitos:** separação entre UI e regra de negócio
 
 ### Dia 08 — Java moderno e relatórios

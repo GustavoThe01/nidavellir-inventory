@@ -50,9 +50,9 @@
 - **Conceitos:** separação entre UI e regra de negócio
 
 ### Dia 08 — Java moderno e relatórios
-- [ ] `sealed interface` para tipos de movimentação + `switch` com pattern matching
-- [ ] Relatórios (`groupingBy`, `summarizingDouble`...)
-- [ ] Exportação CSV e JSON com `java.nio.file.Files`
+- [x] `sealed interface` para tipos de movimentação + `switch` com pattern matching
+- [x] Relatórios (`groupingBy`, `summarizingDouble`...)
+- [x] Exportação CSV e JSON com `java.nio.file.Files`
 - **Conceitos:** tipos algébricos, exaustividade do compilador
 
 ### Dia 09 — Importação em lote e concorrência

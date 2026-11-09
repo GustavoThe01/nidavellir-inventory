@@ -6,10 +6,10 @@ import dev.gustavo.nidavellir.domain.ProductNotFoundException;
 import dev.gustavo.nidavellir.domain.Quantity;
 import dev.gustavo.nidavellir.domain.Sku;
 import dev.gustavo.nidavellir.domain.StockMovement;
-import dev.gustavo.nidavellir.domain.StockMovement.MovementType;
 import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Casos de uso de movimentação de estoque. Saldo e histórico sempre mudam na mesma transação:
@@ -32,15 +32,15 @@ public final class StockService {
     }
 
     public StockMovement receive(Sku sku, Quantity quantity, String reason) {
-        return move(sku, MovementType.INBOUND, quantity, reason);
+        return move(sku, product -> movements.inbound(product, quantity, reason));
     }
 
     public StockMovement dispatch(Sku sku, Quantity quantity, String reason) {
-        return move(sku, MovementType.OUTBOUND, quantity, reason);
+        return move(sku, product -> movements.outbound(product, quantity, reason));
     }
 
     public StockMovement adjust(Sku sku, Quantity countedStock, String reason) {
-        return move(sku, MovementType.ADJUSTMENT, countedStock, reason);
+        return move(sku, product -> movements.adjustment(product, countedStock, reason));
     }
 
     /** Histórico do produto, do mais antigo para o mais recente. */
@@ -51,12 +51,12 @@ public final class StockService {
         });
     }
 
-    private StockMovement move(Sku sku, MovementType type, Quantity quantity, String reason) {
+    private StockMovement move(Sku sku, Function<Product, StockMovement> operation) {
         Outcome outcome = transaction.execute((Stores stores) -> {
             Product product = stores.products().findBySku(sku).orElseThrow(() -> new ProductNotFoundException(sku));
             boolean wasBelowMinimum = product.isBelowMinimum();
 
-            StockMovement movement = movements.apply(type, product, quantity, reason);
+            StockMovement movement = operation.apply(product);
             stores.products().save(product);
             stores.movements().append(movement);
             return new Outcome(movement, product, !wasBelowMinimum && product.isBelowMinimum());

@@ -2,6 +2,7 @@ package dev.gustavo.nidavellir.cli;
 
 import dev.gustavo.nidavellir.application.CatalogService;
 import dev.gustavo.nidavellir.application.InventoryQueryService;
+import dev.gustavo.nidavellir.application.InventoryReports;
 import dev.gustavo.nidavellir.application.InventoryTransaction;
 import dev.gustavo.nidavellir.application.ProductRepository;
 import dev.gustavo.nidavellir.application.StockLevelListener;
@@ -9,6 +10,7 @@ import dev.gustavo.nidavellir.application.StockService;
 import dev.gustavo.nidavellir.infrastructure.ConnectionFactory;
 import dev.gustavo.nidavellir.infrastructure.JdbcInventoryTransaction;
 import dev.gustavo.nidavellir.infrastructure.JdbcProductRepository;
+import dev.gustavo.nidavellir.infrastructure.ReportExporter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -60,6 +62,8 @@ public final class NidavellirApp {
                 .register("6", new Commands.ShowHistory(stock))
                 .register("7", new Commands.BelowMinimum(queries))
                 .register("8", new Commands.StockValue(queries))
+                .register("9", new Commands.CategoryReportCommand(new InventoryReports(products)))
+                .register("10", new Commands.ExportReport(new InventoryReports(products), new ReportExporter()))
                 .register("0", new Commands.Exit());
     }
 

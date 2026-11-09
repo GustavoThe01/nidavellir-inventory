@@ -35,3 +35,9 @@ e [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - `CatalogService`, que impede cadastrar um SKU que já existe, e `StockService.history`.
 - `exec-maven-plugin` para rodar a CLI com `./mvnw -q compile exec:java`.
 - 7 testes novos de sessões completas.
+- `StockMovement` passa a ser uma `sealed interface` com os records `Inbound`, `Outbound` e `Adjustment`, no lugar do `enum`.
+- `switch` com pattern matching e record patterns, sem `default`: o compilador garante que todo tipo é tratado.
+- `InventoryReports`: estoque por categoria com `groupingBy`, `summarizingInt` e `teeing`, com o valor somado em `BigDecimal`.
+- `ReportExporter`: CSV (RFC 4180) e JSON sem biblioteca externa, gravados num temporário e movidos para o nome final.
+- Opções 9 (relatório por categoria) e 10 (exportar) no menu, e o total de entradas e saídas no histórico.
+- 10 testes novos.

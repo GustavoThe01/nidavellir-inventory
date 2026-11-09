@@ -2,6 +2,9 @@ package dev.gustavo.nidavellir.cli;
 
 import dev.gustavo.nidavellir.application.CatalogService;
 import dev.gustavo.nidavellir.application.InventoryQueryService;
+import dev.gustavo.nidavellir.application.InventoryReports;
+import dev.gustavo.nidavellir.application.InventoryReports.CategoryReport;
+import dev.gustavo.nidavellir.application.InventoryReports.MovementSummary;
 import dev.gustavo.nidavellir.application.ProductRepository;
 import dev.gustavo.nidavellir.application.StockService;
 import dev.gustavo.nidavellir.domain.Category;
@@ -10,6 +13,8 @@ import dev.gustavo.nidavellir.domain.Product;
 import dev.gustavo.nidavellir.domain.Quantity;
 import dev.gustavo.nidavellir.domain.Sku;
 import dev.gustavo.nidavellir.domain.StockMovement;
+import dev.gustavo.nidavellir.infrastructure.ReportExporter;
+import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -124,17 +129,21 @@ public final class Commands {
             terminal.println("%-16s %-10s %8s %8s  %s".formatted("Quando", "Tipo", "Qtd.", "Saldo", "Motivo"));
             history.forEach(movement -> terminal.println("%-16s %-10s %8s %8s  %s".formatted(
                     WHEN.format(movement.occurredAt()),
-                    label(movement.type()),
+                    label(movement),
                     movement.quantity(),
                     movement.stockAfter(),
                     movement.reason())));
+
+            MovementSummary summary = InventoryReports.summarize(history);
+            terminal.println("Total: %d unidade(s) de entrada, %d de saída e %d ajuste(s).".formatted(
+                    summary.inboundUnits(), summary.outboundUnits(), summary.adjustments()));
         }
 
-        private static String label(StockMovement.MovementType type) {
-            return switch (type) {
-                case INBOUND -> "Entrada";
-                case OUTBOUND -> "Saída";
-                case ADJUSTMENT -> "Ajuste";
+        private static String label(StockMovement movement) {
+            return switch (movement) {
+                case StockMovement.Inbound inbound -> "Entrada";
+                case StockMovement.Outbound outbound -> "Saída";
+                case StockMovement.Adjustment adjustment -> "Ajuste";
             };
         }
     }
@@ -164,6 +173,48 @@ public final class Commands {
             Map<String, Money> byCategory = queries.stockValueByCategory();
             byCategory.forEach((category, value) -> terminal.println("%-20s %14s".formatted(category, value)));
             terminal.println("%-20s %14s".formatted("TOTAL", queries.totalStockValue()));
+        }
+    }
+
+    public record CategoryReportCommand(InventoryReports reports) implements Command {
+
+        @Override
+        public String description() {
+            return "Relatório por categoria";
+        }
+
+        @Override
+        public void execute(Terminal terminal) {
+            List<CategoryReport> lines = reports.byCategory();
+            if (lines.isEmpty()) {
+                terminal.println("Nenhum produto cadastrado.");
+                return;
+            }
+            String row = "%-16s %8s %8s %6s %6s %8s %14s %8s";
+            terminal.println(row.formatted("Categoria", "Produtos", "Unidades", "Mín.", "Máx.", "Média", "Valor", "Repor"));
+            lines.forEach(line -> terminal.println(row.formatted(line.category(), line.products(), line.units(),
+                    line.minimumStock(), line.maximumStock(), "%.1f".formatted(line.averageStock()),
+                    line.stockValue(), line.belowMinimum())));
+        }
+    }
+
+    public record ExportReport(InventoryReports reports, ReportExporter exporter) implements Command {
+
+        @Override
+        public String description() {
+            return "Exportar relatório (CSV e JSON)";
+        }
+
+        @Override
+        public void execute(Terminal terminal) {
+            Path folder = terminal.ask("Pasta de destino (Enter para \"relatorios\"): ",
+                    value -> Path.of(value.isEmpty() ? "relatorios" : value));
+            List<CategoryReport> lines = reports.byCategory();
+            Path csv = exporter.exportCsv(lines, folder.resolve("estoque-por-categoria.csv"));
+            Path json = exporter.exportJson(lines, folder.resolve("estoque-por-categoria.json"));
+            terminal.println("✓ Relatório exportado:");
+            terminal.println("  " + csv.toAbsolutePath());
+            terminal.println("  " + json.toAbsolutePath());
         }
     }
 

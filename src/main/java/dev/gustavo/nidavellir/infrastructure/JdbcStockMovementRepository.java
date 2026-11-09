@@ -4,7 +4,9 @@ import dev.gustavo.nidavellir.application.StockMovementRepository;
 import dev.gustavo.nidavellir.domain.Quantity;
 import dev.gustavo.nidavellir.domain.Sku;
 import dev.gustavo.nidavellir.domain.StockMovement;
-import dev.gustavo.nidavellir.domain.StockMovement.MovementType;
+import dev.gustavo.nidavellir.domain.StockMovement.Adjustment;
+import dev.gustavo.nidavellir.domain.StockMovement.Inbound;
+import dev.gustavo.nidavellir.domain.StockMovement.Outbound;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -47,7 +49,7 @@ public final class JdbcStockMovementRepository implements StockMovementRepositor
             scope.run(connection -> {
                 try (PreparedStatement statement = connection.prepareStatement(INSERT)) {
                     statement.setString(1, movement.sku().value());
-                    statement.setString(2, movement.type().name());
+                    statement.setString(2, typeOf(movement));
                     statement.setInt(3, movement.quantity().value());
                     statement.setInt(4, movement.stockAfter().value());
                     statement.setString(5, movement.reason());
@@ -80,13 +82,26 @@ public final class JdbcStockMovementRepository implements StockMovementRepositor
         }
     }
 
+    /** O código gravado na coluna {@code type}. O switch é exaustivo: um tipo novo sem código não compila. */
+    private static String typeOf(StockMovement movement) {
+        return switch (movement) {
+            case Inbound inbound -> "INBOUND";
+            case Outbound outbound -> "OUTBOUND";
+            case Adjustment adjustment -> "ADJUSTMENT";
+        };
+    }
+
     private static StockMovement toMovement(ResultSet row) throws SQLException {
-        return new StockMovement(
-                Sku.of(row.getString("sku")),
-                MovementType.valueOf(row.getString("type")),
-                Quantity.of(row.getInt("quantity")),
-                Quantity.of(row.getInt("stock_after")),
-                row.getString("reason"),
-                Instant.parse(row.getString("occurred_at")));
+        Sku sku = Sku.of(row.getString("sku"));
+        Quantity quantity = Quantity.of(row.getInt("quantity"));
+        Quantity stockAfter = Quantity.of(row.getInt("stock_after"));
+        String reason = row.getString("reason");
+        Instant occurredAt = Instant.parse(row.getString("occurred_at"));
+        return switch (row.getString("type")) {
+            case "INBOUND" -> new Inbound(sku, quantity, stockAfter, reason, occurredAt);
+            case "OUTBOUND" -> new Outbound(sku, quantity, stockAfter, reason, occurredAt);
+            case "ADJUSTMENT" -> new Adjustment(sku, quantity, stockAfter, reason, occurredAt);
+            default -> throw new SQLException("Tipo de movimentação desconhecido no banco: " + row.getString("type"));
+        };
     }
 }

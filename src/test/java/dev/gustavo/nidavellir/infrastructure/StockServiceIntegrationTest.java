@@ -14,7 +14,8 @@ import dev.gustavo.nidavellir.domain.ProductNotFoundException;
 import dev.gustavo.nidavellir.domain.Quantity;
 import dev.gustavo.nidavellir.domain.Sku;
 import dev.gustavo.nidavellir.domain.StockMovement;
-import dev.gustavo.nidavellir.domain.StockMovement.MovementType;
+import dev.gustavo.nidavellir.domain.StockMovement.Inbound;
+import dev.gustavo.nidavellir.domain.StockMovement.Outbound;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -64,10 +65,10 @@ class StockServiceIntegrationTest {
 
         assertThat(currentStock()).isEqualTo(Quantity.of(6));
         assertThat(movements.findBySku(HAMMER))
-                .extracting(StockMovement::type, StockMovement::stockAfter, StockMovement::reason)
+                .extracting(Object::getClass, StockMovement::stockAfter, StockMovement::reason)
                 .containsExactly(
-                        tuple(MovementType.INBOUND, Quantity.of(10), "Compra do fornecedor"),
-                        tuple(MovementType.OUTBOUND, Quantity.of(6), "Venda"));
+                        tuple(Inbound.class, Quantity.of(10), "Compra do fornecedor"),
+                        tuple(Outbound.class, Quantity.of(6), "Venda"));
     }
 
     @Test

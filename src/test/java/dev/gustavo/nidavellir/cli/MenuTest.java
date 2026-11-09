@@ -142,7 +142,7 @@ class MenuTest {
     @Test
     @DisplayName("opção inválida pede de novo, e o fim da entrada encerra sem erro")
     void invalidOptionAndEndOfInput() {
-        String output = session("9", "3", "MJ-001");
+        String output = session("99", "3", "MJ-001");
 
         assertThat(output).contains("Opção inválida");
         assertThat(logged).isEmpty();
@@ -154,5 +154,20 @@ class MenuTest {
         hammer(2);
 
         assertThat(session("8", "0")).contains("Forja").contains("TOTAL").contains("R$ 39.80");
+    }
+
+    @Test
+    @DisplayName("o relatório por categoria e a exportação aparecem no menu")
+    void reportAndExport(@org.junit.jupiter.api.io.TempDir java.nio.file.Path folder) {
+        hammer(2);
+
+        String output = session("9", "10", folder.toString(), "3", "MJ-001", "5", "Compra", "6", "MJ-001", "0");
+
+        assertThat(output)
+                .contains("Forja")
+                .contains("✓ Relatório exportado:")
+                .contains("estoque-por-categoria.csv")
+                .contains("Total: 5 unidade(s) de entrada, 0 de saída e 0 ajuste(s).");
+        assertThat(folder.resolve("estoque-por-categoria.json")).exists();
     }
 }

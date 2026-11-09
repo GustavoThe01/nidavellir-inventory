@@ -14,8 +14,8 @@ JDBC com transações e testes automatizados. A base antes do Spring.
 ![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 ![JUnit](https://img.shields.io/badge/JUnit-6-25A162?style=flat-square&logo=junit5&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-JDBC-003B57?style=flat-square&logo=sqlite&logoColor=white)
-![Roadmap](https://img.shields.io/badge/roadmap-dia_07_de_10-b45309?style=flat-square)
-![Testes](https://img.shields.io/badge/testes-97_passando-15803d?style=flat-square)
+![Roadmap](https://img.shields.io/badge/roadmap-dia_08_de_10-b45309?style=flat-square)
+![Testes](https://img.shields.io/badge/testes-107_passando-15803d?style=flat-square)
 
 </div>
 
@@ -98,8 +98,8 @@ Foram anões ferreiros que forjaram tesouros como o martelo de Thor, o Mjölnir,
 | 🔄 **Movimentações** | Entradas, saídas e ajustes, sempre com histórico e dentro de transação |
 | 🚨 **Alertas** | Aviso automático quando um produto fica abaixo do estoque mínimo (Observer) |
 | 💲 **Precificação** | Políticas de preço e desconto intercambiáveis (Strategy) |
-| 📊 **Relatórios** | Valor total em estoque, produtos por categoria, curva de giro (Streams) |
-| 📤 **Exportação** | CSV e JSON com `java.nio` |
+| 📊 **Relatórios** | Estoque por categoria com mínimo, máximo, média e valor (`groupingBy`, `summarizingInt`, `teeing`) |
+| 📤 **Exportação** | CSV e JSON com `java.nio.file.Files`, gravados de forma atômica |
 | 📥 **Importação em lote** | CSV grande processado em paralelo, com relatório de linhas inválidas |
 | 🖥️ **CLI** | Menu interativo, cada opção é um `Command` |
 
@@ -233,6 +233,7 @@ Os seis padrões já estão no código. Alguns cuidados que tomei:
 - O **melhor preço** é um Composite de políticas: escolhe a mais barata e não soma descontos.
 - O aviso de estoque mínimo só dispara **depois do commit** e só quando o saldo **cruza** o mínimo. Se a gravação falha, ninguém é avisado de algo que não aconteceu.
 - `PricingPolicy` é uma interface funcional: uma promoção pontual cabe numa lambda, sem criar classe.
+- A movimentação é uma `sealed interface` com três records (`Inbound`, `Outbound`, `Adjustment`). Os `switch` sobre ela não têm `default`: se eu criar um tipo novo e esquecer de tratá-lo em algum lugar, o código não compila. Com o `enum` de antes, o esquecimento só aparecia rodando.
 - O menu é um mapa de opção para `Command`. Uma opção nova é uma classe nova registrada em `NidavellirApp`, sem `switch` crescendo.
 - Os comandos não têm `try/catch`. O `Menu` trata tudo num lugar só: regra de negócio violada aparece como mensagem, falha de banco aparece de forma genérica e vai para o log, e a sessão continua.
 
@@ -272,7 +273,7 @@ Os seis padrões já estão no código. Alguns cuidados que tomei:
 | Semana | Dias | Tema | Progresso |
 |---|---|---|---|
 | 1 | 01–05 | Fundação, domínio, Streams, JDBC + SQLite, transações | 🟧🟧🟧🟧🟧 |
-| 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | 🟧🟧⬜⬜⬜ |
+| 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | 🟧🟧🟧⬜⬜ |
 
 Detalhes no [ROADMAP.md](ROADMAP.md) · Mudanças no [CHANGELOG.md](CHANGELOG.md).
 
@@ -328,7 +329,8 @@ Para usar outro arquivo de banco:
 | Integração (JDBC) | SQLite em arquivo temporário, incluindo SQL injection | ✅ 6 testes |
 | Movimentações | Transação com commit e rollback em SQLite real | ✅ 8 testes |
 | Design patterns | Strategy, Builder e Observer | ✅ 20 testes |
-| CLI | Sessões inteiras simuladas com texto: entrada inválida, alerta, erro de banco | ✅ 8 testes |
+| CLI | Sessões inteiras simuladas com texto: entrada inválida, alerta, erro de banco | ✅ 9 testes |
+| Relatórios e exportação | `groupingBy`, record patterns, CSV e JSON em pasta temporária | ✅ 9 testes |
 | Cobertura | JaCoCo (meta ≥ 80% no domínio) | ⏳ Dia 10 |
 
 ---
@@ -368,14 +370,13 @@ Mantenho aqui um checklist vivo do que ainda vou incrementar neste repositório.
 - [x] Movimentações com transação (Dia 05)
 - [x] Strategy, Observer, Builder e Factory (Dia 06)
 - [x] Menu interativo com Command (Dia 07)
-- [ ] `sealed` + pattern matching, exportação CSV/JSON (Dia 08)
+- [x] `sealed` + pattern matching, exportação CSV/JSON (Dia 08)
 - [ ] Importação paralela com virtual threads e logging (Dia 09)
 - [ ] JaCoCo, Spotless, jar executável e release `v1.0.0` (Dia 10)
 
 **README**
 - [ ] GIF do menu da CLI em funcionamento
 - [ ] Badge de cobertura (JaCoCo / Codecov)
-- [ ] Exemplo de relatório exportado (CSV e JSON)
 - [ ] Atualizar "Em números" e a tabela de testes com valores reais
 - [ ] Definir e adicionar uma licença (`LICENSE`)
 - [ ] Versão em inglês do README

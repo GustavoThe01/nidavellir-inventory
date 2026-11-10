@@ -75,6 +75,30 @@ public final class JdbcProductRepository implements ProductRepository {
         }
     }
 
+    /** Batch: um único PreparedStatement, executado uma vez para todos os produtos. */
+    @Override
+    public void saveAll(List<Product> products) {
+        Objects.requireNonNull(products, "products");
+        try {
+            scope.run(connection -> {
+                try (PreparedStatement statement = connection.prepareStatement(UPSERT)) {
+                    for (Product product : products) {
+                        statement.setString(1, product.sku().value());
+                        statement.setString(2, product.name());
+                        statement.setString(3, product.category().name());
+                        statement.setLong(4, toCents(product.price()));
+                        statement.setInt(5, product.stock().value());
+                        statement.setInt(6, product.minimumStock().value());
+                        statement.addBatch();
+                    }
+                    return statement.executeBatch();
+                }
+            });
+        } catch (SQLException exception) {
+            throw new PersistenceException("Não consegui salvar os " + products.size() + " produtos.", exception);
+        }
+    }
+
     @Override
     public Optional<Product> findBySku(Sku sku) {
         try {

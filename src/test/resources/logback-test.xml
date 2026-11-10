@@ -1,0 +1,11 @@
+<configuration>
+    <!-- Nos testes, só erros no console e nenhum arquivo de log. -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5level %logger{0}: %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

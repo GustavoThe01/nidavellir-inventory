@@ -17,3 +17,6 @@ target/
 # SO
 Thumbs.db
 .DS_Store
+
+# Logs da aplicação
+logs/

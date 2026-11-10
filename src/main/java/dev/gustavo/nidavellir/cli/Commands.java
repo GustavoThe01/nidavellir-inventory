@@ -5,6 +5,9 @@ import dev.gustavo.nidavellir.application.InventoryQueryService;
 import dev.gustavo.nidavellir.application.InventoryReports;
 import dev.gustavo.nidavellir.application.InventoryReports.CategoryReport;
 import dev.gustavo.nidavellir.application.InventoryReports.MovementSummary;
+import dev.gustavo.nidavellir.application.ProductImportService;
+import dev.gustavo.nidavellir.application.ProductImportService.ImportReport;
+import dev.gustavo.nidavellir.infrastructure.CsvProductFile;
 import dev.gustavo.nidavellir.application.ProductRepository;
 import dev.gustavo.nidavellir.application.StockService;
 import dev.gustavo.nidavellir.domain.Category;
@@ -14,6 +17,7 @@ import dev.gustavo.nidavellir.domain.Quantity;
 import dev.gustavo.nidavellir.domain.Sku;
 import dev.gustavo.nidavellir.domain.StockMovement;
 import dev.gustavo.nidavellir.infrastructure.ReportExporter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -215,6 +219,43 @@ public final class Commands {
             terminal.println("✓ Relatório exportado:");
             terminal.println("  " + csv.toAbsolutePath());
             terminal.println("  " + json.toAbsolutePath());
+        }
+    }
+
+    public record ImportProducts(ProductImportService importer) implements Command {
+
+        private static final int ERRORS_ON_SCREEN = 10;
+
+        @Override
+        public String description() {
+            return "Importar produtos de um CSV";
+        }
+
+        @Override
+        public void execute(Terminal terminal) {
+            terminal.println("Formato: " + CsvProductFile.HEADER);
+            Path file = terminal.ask("Arquivo: ", value -> {
+                Path path = Path.of(value);
+                if (!Files.isRegularFile(path)) {
+                    throw new IllegalArgumentException("Arquivo não encontrado: " + path.toAbsolutePath());
+                }
+                return path;
+            });
+
+            ImportReport report = importer.importLines(CsvProductFile.read(file));
+            terminal.println("✓ %d de %d linha(s) importada(s) em %d ms.".formatted(
+                    report.imported(), report.read(), report.elapsed().toMillis()));
+            if (report.errors().isEmpty()) {
+                return;
+            }
+
+            terminal.println("✗ %d linha(s) recusada(s):".formatted(report.errors().size()));
+            report.errors().stream().limit(ERRORS_ON_SCREEN)
+                    .forEach(error -> terminal.println("  linha %d: %s".formatted(error.line(), error.message())));
+            if (report.errors().size() > ERRORS_ON_SCREEN) {
+                terminal.println("  ... e mais %d.".formatted(report.errors().size() - ERRORS_ON_SCREEN));
+            }
+            terminal.println("Relatório completo: " + CsvProductFile.writeErrors(file, report.errors()).toAbsolutePath());
         }
     }
 

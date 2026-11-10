@@ -14,8 +14,8 @@ JDBC com transações e testes automatizados. A base antes do Spring.
 ![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 ![JUnit](https://img.shields.io/badge/JUnit-6-25A162?style=flat-square&logo=junit5&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-JDBC-003B57?style=flat-square&logo=sqlite&logoColor=white)
-![Roadmap](https://img.shields.io/badge/roadmap-dia_08_de_10-b45309?style=flat-square)
-![Testes](https://img.shields.io/badge/testes-107_passando-15803d?style=flat-square)
+![Roadmap](https://img.shields.io/badge/roadmap-dia_09_de_10-b45309?style=flat-square)
+![Testes](https://img.shields.io/badge/testes-117_passando-15803d?style=flat-square)
 
 </div>
 
@@ -239,6 +239,36 @@ Os seis padrões já estão no código. Alguns cuidados que tomei:
 
 ---
 
+## 📥 Importação em lote
+
+A opção 11 do menu importa produtos de um CSV (`sku,nome,categoria,preco,estoque_minimo,estoque_inicial`).
+Cada linha é validada pelo domínio, e as recusadas vão para um relatório `<arquivo>.erros.csv`, com a linha e o motivo.
+
+São três etapas, cada uma com o modelo de execução que faz sentido para ela:
+
+1. **Validar em paralelo**, em blocos de 2.000 linhas, num pool do tamanho do número de núcleos. Cada tarefa só lê o próprio
+   bloco e devolve um resultado novo: sem estado compartilhado, não existe condição de corrida.
+2. **Conferir duplicados em sequência**, na ordem do arquivo. Em paralelo, "qual linha veio primeiro" mudaria a cada
+   execução; em sequência, o relatório é sempre o mesmo, e um teste compara 1 e 4 threads linha a linha.
+3. **Gravar numa transação só, em batch JDBC.** Ou todas as linhas válidas entram, ou nenhuma. O estoque inicial vira
+   uma movimentação de entrada, para o saldo continuar igual ao histórico.
+
+Medi 200.000 linhas no meu notebook (8 núcleos), sem banco, depois do aquecimento da JVM:
+
+| Threads | Tempo |
+|---:|---:|
+| 1 | ~490 ms |
+| 4 | 240–330 ms |
+| 8 | 260–280 ms |
+
+O ganho fica perto de 2×, longe de 8×. A conferência de duplicados e a montagem do resultado são sequenciais de propósito,
+e a parte paralela é curta: é a lei de Amdahl na prática. Por isso usei um pool de threads comum, e não virtual threads:
+validar é trabalho de CPU, e virtual threads só ajudam quando a tarefa fica esperando I/O.
+
+O log vai para `logs/nidavellir.log` (SLF4J + Logback, um arquivo por dia); avisos e erros também aparecem no terminal.
+
+---
+
 ## 🧠 Competências demonstradas
 
 | Área | Conceitos |
@@ -273,7 +303,7 @@ Os seis padrões já estão no código. Alguns cuidados que tomei:
 | Semana | Dias | Tema | Progresso |
 |---|---|---|---|
 | 1 | 01–05 | Fundação, domínio, Streams, JDBC + SQLite, transações | 🟧🟧🟧🟧🟧 |
-| 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | 🟧🟧🟧⬜⬜ |
+| 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | 🟧🟧🟧🟧⬜ |
 
 Detalhes no [ROADMAP.md](ROADMAP.md) · Mudanças no [CHANGELOG.md](CHANGELOG.md).
 
@@ -331,6 +361,7 @@ Para usar outro arquivo de banco:
 | Design patterns | Strategy, Builder e Observer | ✅ 20 testes |
 | CLI | Sessões inteiras simuladas com texto: entrada inválida, alerta, erro de banco | ✅ 9 testes |
 | Relatórios e exportação | `groupingBy`, record patterns, CSV e JSON em pasta temporária | ✅ 9 testes |
+| Importação em lote | Validação linha a linha, duplicados, 1 × 4 threads com o mesmo resultado, batch no SQLite | ✅ 10 testes |
 | Cobertura | JaCoCo (meta ≥ 80% no domínio) | ⏳ Dia 10 |
 
 ---
@@ -371,7 +402,7 @@ Mantenho aqui um checklist vivo do que ainda vou incrementar neste repositório.
 - [x] Strategy, Observer, Builder e Factory (Dia 06)
 - [x] Menu interativo com Command (Dia 07)
 - [x] `sealed` + pattern matching, exportação CSV/JSON (Dia 08)
-- [ ] Importação paralela com virtual threads e logging (Dia 09)
+- [x] Importação em lote com validação por linha, processamento paralelo e logging (Dia 09)
 - [ ] JaCoCo, Spotless, jar executável e release `v1.0.0` (Dia 10)
 
 **README**

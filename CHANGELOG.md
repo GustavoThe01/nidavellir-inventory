@@ -41,3 +41,8 @@ e [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - `ReportExporter`: CSV (RFC 4180) e JSON sem biblioteca externa, gravados num temporário e movidos para o nome final.
 - Opções 9 (relatório por categoria) e 10 (exportar) no menu, e o total de entradas e saídas no histórico.
 - 10 testes novos.
+- Importação de produtos em CSV (opção 11 do menu): validação linha a linha pelo domínio, SKU repetido no arquivo ou já cadastrado e relatório `<arquivo>.erros.csv`.
+- Validação em paralelo num `ExecutorService`, conferência de duplicados em sequência e gravação em batch JDBC numa transação só, com o estoque inicial como movimentação de entrada.
+- `saveAll` e `appendAll` com `addBatch`/`executeBatch` nos repositórios JDBC.
+- Logging com SLF4J 2.0 e Logback 1.6: avisos no terminal e detalhe em `logs/nidavellir.log`, com um arquivo por dia.
+- 10 testes novos.

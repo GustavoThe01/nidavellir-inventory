@@ -134,7 +134,7 @@ class MenuTest {
 
         String output = session("3", "MJ-001", "1", "Compra", "1", "0");
 
-        assertThat(output).contains("✗ Não consegui acessar o banco de dados").contains("Martelo");
+        assertThat(output).contains("✗ Não consegui ler ou gravar os dados").contains("Martelo");
         assertThat(logged).hasSize(1);
         assertThat(output).doesNotContain("SQLITE_FULL");
     }

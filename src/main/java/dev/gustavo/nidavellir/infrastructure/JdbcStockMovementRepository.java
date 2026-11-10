@@ -63,6 +63,29 @@ public final class JdbcStockMovementRepository implements StockMovementRepositor
     }
 
     @Override
+    public void appendAll(List<StockMovement> movements) {
+        Objects.requireNonNull(movements, "movements");
+        try {
+            scope.run(connection -> {
+                try (PreparedStatement statement = connection.prepareStatement(INSERT)) {
+                    for (StockMovement movement : movements) {
+                        statement.setString(1, movement.sku().value());
+                        statement.setString(2, typeOf(movement));
+                        statement.setInt(3, movement.quantity().value());
+                        statement.setInt(4, movement.stockAfter().value());
+                        statement.setString(5, movement.reason());
+                        statement.setString(6, movement.occurredAt().toString());
+                        statement.addBatch();
+                    }
+                    return statement.executeBatch();
+                }
+            });
+        } catch (SQLException exception) {
+            throw new PersistenceException("Não consegui registrar as " + movements.size() + " movimentações.", exception);
+        }
+    }
+
+    @Override
     public List<StockMovement> findBySku(Sku sku) {
         try {
             return scope.run(connection -> {

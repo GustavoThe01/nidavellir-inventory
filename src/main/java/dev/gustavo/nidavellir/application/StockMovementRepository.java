@@ -9,6 +9,11 @@ public interface StockMovementRepository {
 
     void append(StockMovement movement);
 
+    /** Registra várias movimentações. A versão JDBC usa batch. */
+    default void appendAll(List<StockMovement> movements) {
+        movements.forEach(this::append);
+    }
+
     /** Histórico do produto, do mais antigo para o mais recente. */
     List<StockMovement> findBySku(Sku sku);
 }

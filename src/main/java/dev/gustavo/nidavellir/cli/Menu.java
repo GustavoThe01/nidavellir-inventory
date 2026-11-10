@@ -64,7 +64,7 @@ public final class Menu {
             terminal.println("✗ " + exception.getMessage());
         } catch (PersistenceException exception) {
             errorLog.accept(exception);
-            terminal.println("✗ Não consegui acessar o banco de dados. Nada foi alterado; tente de novo.");
+            terminal.println("✗ Não consegui ler ou gravar os dados. Nada foi alterado; tente de novo.");
         } catch (RuntimeException exception) {
             errorLog.accept(exception);
             terminal.println("✗ Erro inesperado. A operação foi cancelada.");

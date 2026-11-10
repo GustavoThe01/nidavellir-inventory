@@ -56,9 +56,9 @@
 - **Conceitos:** tipos algébricos, exaustividade do compilador
 
 ### Dia 09 — Importação em lote e concorrência
-- [ ] Importar CSV grande, validando linha a linha (relatório de erros)
-- [ ] Processamento paralelo com `ExecutorService` / virtual threads
-- [ ] Logging com SLF4J + Logback
+- [x] Importar CSV grande, validando linha a linha (relatório de erros)
+- [x] Processamento paralelo com `ExecutorService` / virtual threads
+- [x] Logging com SLF4J + Logback
 - **Conceitos:** thread-safety, condições de corrida, batch insert
 
 ### Dia 10 — Qualidade e release

@@ -4,6 +4,7 @@ import dev.gustavo.nidavellir.application.CatalogService;
 import dev.gustavo.nidavellir.application.InventoryQueryService;
 import dev.gustavo.nidavellir.application.InventoryReports;
 import dev.gustavo.nidavellir.application.InventoryTransaction;
+import dev.gustavo.nidavellir.application.ProductImportService;
 import dev.gustavo.nidavellir.application.ProductRepository;
 import dev.gustavo.nidavellir.application.StockLevelListener;
 import dev.gustavo.nidavellir.application.StockService;
@@ -18,6 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Ponto de entrada: monta as dependências (composition root) e abre o menu.
@@ -28,6 +31,8 @@ import java.util.List;
 public final class NidavellirApp {
 
     static final String NAME = "Nidavellir Inventory";
+
+    private static final Logger LOG = LoggerFactory.getLogger(NidavellirApp.class);
 
     private NidavellirApp() {
     }
@@ -41,7 +46,7 @@ public final class NidavellirApp {
 
         out.println(banner());
         menu(new Terminal(in, out), new JdbcProductRepository(connections), new JdbcInventoryTransaction(connections),
-                Clock.systemDefaultZone(), exception -> exception.printStackTrace(System.err)).run();
+                Clock.systemDefaultZone(), exception -> LOG.error("Erro na operação do menu", exception)).run();
     }
 
     /** Monta o menu com as dependências recebidas. Os testes chamam este método com repositórios em memória. */
@@ -64,6 +69,8 @@ public final class NidavellirApp {
                 .register("8", new Commands.StockValue(queries))
                 .register("9", new Commands.CategoryReportCommand(new InventoryReports(products)))
                 .register("10", new Commands.ExportReport(new InventoryReports(products), new ReportExporter()))
+                .register("11", new Commands.ImportProducts(
+                        new ProductImportService(transaction, clock, Runtime.getRuntime().availableProcessors())))
                 .register("0", new Commands.Exit());
     }
 

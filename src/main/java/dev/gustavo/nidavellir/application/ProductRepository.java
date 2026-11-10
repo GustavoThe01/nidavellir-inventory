@@ -17,6 +17,14 @@ public interface ProductRepository {
     /** Inclui o produto ou atualiza o existente com o mesmo SKU. */
     void save(Product product);
 
+    /**
+     * Grava vários produtos. A versão padrão grava um por um; a JDBC sobrescreve com um batch,
+     * que manda todos os comandos ao banco de uma vez.
+     */
+    default void saveAll(List<Product> products) {
+        products.forEach(this::save);
+    }
+
     Optional<Product> findBySku(Sku sku);
 
     List<Product> findAll();

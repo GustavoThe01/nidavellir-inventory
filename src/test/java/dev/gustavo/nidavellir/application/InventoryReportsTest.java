@@ -24,8 +24,13 @@ class InventoryReportsTest {
     private final InventoryReports reports = new InventoryReports(products);
 
     private void product(String sku, String category, String price, int minimum, int stock) {
-        Product product = Product.builder().sku(sku).name("Item " + sku).category(category).price(price)
-                .minimumStock(minimum).build();
+        Product product = Product.builder()
+                .sku(sku)
+                .name("Item " + sku)
+                .category(category)
+                .price(price)
+                .minimumStock(minimum)
+                .build();
         if (stock > 0) {
             product.addStock(Quantity.of(stock));
         }

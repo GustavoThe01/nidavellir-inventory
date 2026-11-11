@@ -21,7 +21,8 @@ public final class ConnectionFactory {
     private final String url;
 
     public ConnectionFactory(Path databaseFile) {
-        this.url = "jdbc:sqlite:" + Objects.requireNonNull(databaseFile, "databaseFile").toAbsolutePath();
+        this.url = "jdbc:sqlite:"
+                + Objects.requireNonNull(databaseFile, "databaseFile").toAbsolutePath();
     }
 
     public Connection open() throws SQLException {
@@ -38,7 +39,8 @@ public final class ConnectionFactory {
 
     /** Cria as tabelas que ainda não existem. Pode ser chamado a cada inicialização. */
     public void initializeSchema() {
-        try (Connection connection = open(); Statement statement = connection.createStatement()) {
+        try (Connection connection = open();
+                Statement statement = connection.createStatement()) {
             for (String command : readSchema().split(";")) {
                 if (!command.isBlank()) {
                     statement.executeUpdate(command);

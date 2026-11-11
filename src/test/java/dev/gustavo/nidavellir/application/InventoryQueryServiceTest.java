@@ -28,7 +28,8 @@ class InventoryQueryServiceTest {
     private Product ring;
 
     private static Product product(String sku, Category category, String price, int stock, int minimum) {
-        Product product = Product.create(Sku.of(sku), "Produto " + sku, category, Money.of(price), Quantity.of(minimum));
+        Product product =
+                Product.create(Sku.of(sku), "Produto " + sku, category, Money.of(price), Quantity.of(minimum));
         if (stock > 0) {
             product.addStock(Quantity.of(stock));
         }

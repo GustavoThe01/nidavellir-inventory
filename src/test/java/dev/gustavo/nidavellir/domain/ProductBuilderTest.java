@@ -29,7 +29,12 @@ class ProductBuilderTest {
     @Test
     @DisplayName("o estoque mínimo é opcional e começa em zero")
     void minimumStockDefaultsToZero() {
-        Product product = Product.builder().sku("BG-001").name("Bigorna").category("Forja").price("10").build();
+        Product product = Product.builder()
+                .sku("BG-001")
+                .name("Bigorna")
+                .category("Forja")
+                .price("10")
+                .build();
 
         assertThat(product.minimumStock()).isEqualTo(Quantity.ZERO);
     }
@@ -37,7 +42,11 @@ class ProductBuilderTest {
     @Test
     @DisplayName("campo obrigatório ausente é recusado com o nome do campo")
     void rejectsMissingField() {
-        assertThatThrownBy(() -> Product.builder().sku("BG-001").name("Bigorna").price("10").build())
+        assertThatThrownBy(() -> Product.builder()
+                        .sku("BG-001")
+                        .name("Bigorna")
+                        .price("10")
+                        .build())
                 .isInstanceOf(InvalidValueException.class)
                 .hasMessageContaining("categoria");
     }
@@ -45,7 +54,12 @@ class ProductBuilderTest {
     @Test
     @DisplayName("as regras do produto continuam valendo pelo builder")
     void keepsProductRules() {
-        assertThatThrownBy(() -> Product.builder().sku("BG-001").name("Bigorna").category("Forja").price("0").build())
+        assertThatThrownBy(() -> Product.builder()
+                        .sku("BG-001")
+                        .name("Bigorna")
+                        .category("Forja")
+                        .price("0")
+                        .build())
                 .isInstanceOf(InvalidValueException.class)
                 .hasMessageContaining("maior que zero");
     }

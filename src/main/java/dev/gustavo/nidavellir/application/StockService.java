@@ -69,6 +69,5 @@ public final class StockService {
         return outcome.movement();
     }
 
-    private record Outcome(StockMovement movement, Product product, boolean crossedMinimum) {
-    }
+    private record Outcome(StockMovement movement, Product product, boolean crossedMinimum) {}
 }

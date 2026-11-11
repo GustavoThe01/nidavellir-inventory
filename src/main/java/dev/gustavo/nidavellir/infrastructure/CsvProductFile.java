@@ -17,8 +17,7 @@ public final class CsvProductFile {
 
     public static final String HEADER = "sku,nome,categoria,preco,estoque_minimo,estoque_inicial";
 
-    private CsvProductFile() {
-    }
+    private CsvProductFile() {}
 
     /** Linhas do arquivo, sem o cabeçalho e sem as linhas em branco. O número é o da linha no arquivo. */
     public static List<ImportLine> read(Path file) {
@@ -45,9 +44,11 @@ public final class CsvProductFile {
     public static Path writeErrors(Path importedFile, List<ImportError> errors) {
         String name = importedFile.getFileName().toString().replaceFirst("\\.csv$", "");
         Path report = importedFile.resolveSibling(name + ".erros.csv");
-        String content = "linha,motivo\n" + errors.stream()
-                .map(error -> error.line() + "," + ReportExporter.csv(error.message()))
-                .collect(Collectors.joining("\n")) + "\n";
+        String content = "linha,motivo\n"
+                + errors.stream()
+                        .map(error -> error.line() + "," + ReportExporter.csv(error.message()))
+                        .collect(Collectors.joining("\n"))
+                + "\n";
         try {
             return Files.writeString(report, content, StandardCharsets.UTF_8);
         } catch (IOException exception) {

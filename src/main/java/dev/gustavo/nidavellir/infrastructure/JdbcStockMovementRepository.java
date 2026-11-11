@@ -58,7 +58,8 @@ public final class JdbcStockMovementRepository implements StockMovementRepositor
                 }
             });
         } catch (SQLException exception) {
-            throw new PersistenceException("Não consegui registrar a movimentação de " + movement.sku() + ".", exception);
+            throw new PersistenceException(
+                    "Não consegui registrar a movimentação de " + movement.sku() + ".", exception);
         }
     }
 
@@ -81,7 +82,8 @@ public final class JdbcStockMovementRepository implements StockMovementRepositor
                 }
             });
         } catch (SQLException exception) {
-            throw new PersistenceException("Não consegui registrar as " + movements.size() + " movimentações.", exception);
+            throw new PersistenceException(
+                    "Não consegui registrar as " + movements.size() + " movimentações.", exception);
         }
     }
 

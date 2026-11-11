@@ -121,7 +121,8 @@ class StockServiceIntegrationTest {
     @DisplayName("ROLLBACK: se o histórico falhar depois do saldo gravado, o saldo também volta")
     void historyFailureRollsBackStock() throws SQLException {
         service.receive(HAMMER, Quantity.of(5), "Compra");
-        try (Connection connection = connections.open(); Statement statement = connection.createStatement()) {
+        try (Connection connection = connections.open();
+                Statement statement = connection.createStatement()) {
             statement.execute("DROP TABLE stock_movement");
         }
 

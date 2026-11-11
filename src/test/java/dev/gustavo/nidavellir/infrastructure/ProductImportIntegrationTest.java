@@ -37,7 +37,10 @@ class ProductImportIntegrationTest {
         String body = IntStream.rangeClosed(1, 5_000)
                 .mapToObj(i -> "SKU-%04d,Produto %d,Carga,10.00,0,%d".formatted(i, i, i % 3))
                 .collect(Collectors.joining("\n"));
-        Files.writeString(file, "﻿" + CsvProductFile.HEADER + "\n" + body + "\n\nRUIM,x,Carga,1.00,0,0\n", StandardCharsets.UTF_8);
+        Files.writeString(
+                file,
+                "﻿" + CsvProductFile.HEADER + "\n" + body + "\n\nRUIM,x,Carga,1.00,0,0\n",
+                StandardCharsets.UTF_8);
         ConnectionFactory connections = new ConnectionFactory(directory.resolve("estoque.db"));
         connections.initializeSchema();
         ProductImportService importer = new ProductImportService(new JdbcInventoryTransaction(connections), CLOCK, 4);
@@ -47,10 +50,15 @@ class ProductImportIntegrationTest {
         JdbcProductRepository products = new JdbcProductRepository(connections);
         assertThat(report.imported()).isEqualTo(5_000);
         assertThat(products.findAll()).hasSize(5_000);
-        assertThat(products.findBySku(Sku.of("SKU-0002")).orElseThrow().stock().value()).isEqualTo(2);
-        assertThat(new JdbcStockMovementRepository(connections).findBySku(Sku.of("SKU-0002"))).hasSize(1);
+        assertThat(products.findBySku(Sku.of("SKU-0002")).orElseThrow().stock().value())
+                .isEqualTo(2);
+        assertThat(new JdbcStockMovementRepository(connections).findBySku(Sku.of("SKU-0002")))
+                .hasSize(1);
         // A linha em branco conta na numeração: a linha ruim é a 5003 do arquivo.
-        assertThat(report.errors()).singleElement().extracting(ImportError::line).isEqualTo(5_003);
+        assertThat(report.errors())
+                .singleElement()
+                .extracting(ImportError::line)
+                .isEqualTo(5_003);
 
         Path errors = CsvProductFile.writeErrors(file, report.errors());
         assertThat(errors.getFileName().toString()).isEqualTo("produtos.erros.csv");

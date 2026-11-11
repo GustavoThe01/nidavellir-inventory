@@ -6,9 +6,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import dev.gustavo.nidavellir.application.InventoryReports.CategoryReport;
 import dev.gustavo.nidavellir.domain.InvalidValueException;
 import dev.gustavo.nidavellir.domain.Money;
-import dev.gustavo.nidavellir.domain.StockMovement.Adjustment;
 import dev.gustavo.nidavellir.domain.Quantity;
 import dev.gustavo.nidavellir.domain.Sku;
+import dev.gustavo.nidavellir.domain.StockMovement.Adjustment;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -36,16 +36,18 @@ class ReportExporterTest {
     void csv() throws IOException {
         Path file = exporter.exportCsv(REPORT, folder.resolve("sub/estoque.csv"));
 
-        assertThat(Files.readAllLines(file, StandardCharsets.UTF_8)).containsExactly(
-                "categoria,produtos,unidades,estoque_minimo,estoque_maximo,estoque_medio,valor_em_estoque,abaixo_do_minimo",
-                "Forja,2,11,2,9,5.50,20.90,1",
-                "\"Runas, \"\"antigas\"\"\",1,3,3,3,3.00,99.99,0");
+        assertThat(Files.readAllLines(file, StandardCharsets.UTF_8))
+                .containsExactly(
+                        "categoria,produtos,unidades,estoque_minimo,estoque_maximo,estoque_medio,valor_em_estoque,abaixo_do_minimo",
+                        "Forja,2,11,2,9,5.50,20.90,1",
+                        "\"Runas, \"\"antigas\"\"\",1,3,3,3,3.00,99.99,0");
     }
 
     @Test
     @DisplayName("JSON com os campos e as aspas escapadas")
     void json() throws IOException {
-        String json = Files.readString(exporter.exportJson(REPORT, folder.resolve("estoque.json")), StandardCharsets.UTF_8);
+        String json =
+                Files.readString(exporter.exportJson(REPORT, folder.resolve("estoque.json")), StandardCharsets.UTF_8);
 
         assertThat(json)
                 .startsWith("[")
@@ -59,8 +61,10 @@ class ReportExporterTest {
     @Test
     @DisplayName("relatório vazio vira um CSV só com cabeçalho e um JSON com lista vazia")
     void empty() throws IOException {
-        assertThat(Files.readAllLines(exporter.exportCsv(List.of(), folder.resolve("v.csv")))).hasSize(1);
-        assertThat(Files.readString(exporter.exportJson(List.of(), folder.resolve("v.json")))).isEqualTo("[]\n");
+        assertThat(Files.readAllLines(exporter.exportCsv(List.of(), folder.resolve("v.csv"))))
+                .hasSize(1);
+        assertThat(Files.readString(exporter.exportJson(List.of(), folder.resolve("v.json"))))
+                .isEqualTo("[]\n");
     }
 
     @Test
@@ -85,8 +89,12 @@ class ReportExporterTest {
     @Test
     @DisplayName("ajuste com saldo diferente da contagem é recusado")
     void adjustmentInvariant() {
-        assertThatThrownBy(() -> new Adjustment(Sku.of("MJ-001"), Quantity.of(5), Quantity.of(4), "Contagem",
-                Instant.parse("2026-11-09T12:00:00Z")))
+        assertThatThrownBy(() -> new Adjustment(
+                        Sku.of("MJ-001"),
+                        Quantity.of(5),
+                        Quantity.of(4),
+                        "Contagem",
+                        Instant.parse("2026-11-09T12:00:00Z")))
                 .isInstanceOf(InvalidValueException.class);
     }
 }

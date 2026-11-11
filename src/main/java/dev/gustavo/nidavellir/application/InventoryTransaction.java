@@ -11,8 +11,7 @@ import java.util.function.Function;
 public interface InventoryTransaction {
 
     /** Repositórios ligados à mesma transação. */
-    record Stores(ProductRepository products, StockMovementRepository movements) {
-    }
+    record Stores(ProductRepository products, StockMovementRepository movements) {}
 
     <T> T execute(Function<Stores, T> work);
 }

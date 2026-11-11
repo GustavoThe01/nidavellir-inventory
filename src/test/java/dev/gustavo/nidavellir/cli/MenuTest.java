@@ -43,7 +43,9 @@ class MenuTest {
 
             @Override
             public List<StockMovement> findBySku(Sku sku) {
-                return history.stream().filter(movement -> movement.sku().equals(sku)).toList();
+                return history.stream()
+                        .filter(movement -> movement.sku().equals(sku))
+                        .toList();
             }
         };
 
@@ -57,12 +59,19 @@ class MenuTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(buffer, true, StandardCharsets.UTF_8);
         BufferedReader in = new BufferedReader(new StringReader(String.join("\n", lines) + "\n"));
-        NidavellirApp.menu(new Terminal(in, out), products, transaction, CLOCK, logged::add).run();
+        NidavellirApp.menu(new Terminal(in, out), products, transaction, CLOCK, logged::add)
+                .run();
         return buffer.toString(StandardCharsets.UTF_8);
     }
 
     private void hammer(int stock) {
-        Product product = Product.builder().sku("MJ-001").name("Martelo").category("Forja").price("19.90").minimumStock(5).build();
+        Product product = Product.builder()
+                .sku("MJ-001")
+                .name("Martelo")
+                .category("Forja")
+                .price("19.90")
+                .minimumStock(5)
+                .build();
         if (stock > 0) {
             product.addStock(dev.gustavo.nidavellir.domain.Quantity.of(stock));
         }
@@ -93,7 +102,8 @@ class MenuTest {
         String output = session("4", "MJ-001", "10", "Venda", "1", "0");
 
         assertThat(output).contains("✗ Estoque insuficiente").contains("Martelo");
-        assertThat(products.findBySku(Sku.of("MJ-001")).orElseThrow().stock().value()).isEqualTo(3);
+        assertThat(products.findBySku(Sku.of("MJ-001")).orElseThrow().stock().value())
+                .isEqualTo(3);
         assertThat(logged).isEmpty();
     }
 
@@ -118,7 +128,9 @@ class MenuTest {
 
         String output = session("2", "MJ-001", "Outro", "Forja", "1", "0", "6", "XX-999", "0");
 
-        assertThat(output).contains("✗ Já existe um produto com o SKU MJ-001.").contains("✗ Produto XX-999 não encontrado.");
+        assertThat(output)
+                .contains("✗ Já existe um produto com o SKU MJ-001.")
+                .contains("✗ Produto XX-999 não encontrado.");
     }
 
     @Test

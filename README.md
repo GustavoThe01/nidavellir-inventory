@@ -14,8 +14,10 @@ JDBC com transações e testes automatizados. A base antes do Spring.
 ![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 ![JUnit](https://img.shields.io/badge/JUnit-6-25A162?style=flat-square&logo=junit5&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-JDBC-003B57?style=flat-square&logo=sqlite&logoColor=white)
-![Roadmap](https://img.shields.io/badge/roadmap-dia_09_de_10-b45309?style=flat-square)
+![Versão](https://img.shields.io/badge/versão-1.0.0-b45309?style=flat-square)
+![Roadmap](https://img.shields.io/badge/roadmap-10_de_10-15803d?style=flat-square)
 ![Testes](https://img.shields.io/badge/testes-117_passando-15803d?style=flat-square)
+![Cobertura](https://img.shields.io/badge/cobertura_JaCoCo-88%25-15803d?style=flat-square)
 
 </div>
 
@@ -72,11 +74,11 @@ Com ele quero mostrar domínio de **Java e de orientação a objetos sem a ajuda
 
 | ☕ Linguagem | 🧱 Design | 🧪 Qualidade | 🗓️ Processo |
 |:---:|:---:|:---:|:---:|
-| **Java 21** LTS, zero frameworks | **6** design patterns planejados | meta de **80%** de cobertura no domínio | **10** dias de roadmap |
+| **Java 21** LTS, sem framework | **6** design patterns aplicados | **117** testes · **88%** de cobertura (domínio: **90%**) | **10** dias de roadmap |
 | `record`, `sealed`, pattern matching | **4** camadas com regra de dependência | JUnit 6 · AssertJ · Mockito | **1** ADR registrado |
-| virtual threads | SOLID do começo ao fim | CI a cada push | Conventional Commits |
+| `ExecutorService` na importação | SOLID do começo ao fim | JaCoCo + Spotless no CI | Conventional Commits |
 
-<sub>Metas para o fim do roadmap. O estado atual está nos badges, na seção <a href="#-testes">Testes</a> e em <a href="#-o-que-ainda-falta">O que ainda falta</a>.</sub>
+<sub>Números medidos na versão 1.0.0. Os detalhes estão na seção <a href="#-testes">Testes</a>.</sub>
 
 </div>
 
@@ -165,8 +167,12 @@ sequenceDiagram
 
 ## 🧬 Modelo de domínio
 
+O diagrama mostra as classes como elas estão no código da versão 1.0.0: o domínio no centro, as portas que a
+aplicação define (implementadas pela infraestrutura) e as estratégias de preço.
+
 ```mermaid
 classDiagram
+    direction LR
     class Product {
         -Sku sku
         -String name
@@ -174,13 +180,26 @@ classDiagram
         -Money price
         -Quantity stock
         -Quantity minimumStock
+        +create(Sku, String, Category, Money, Quantity)$ Product
+        +builder()$ ProductBuilder
         +addStock(Quantity)
         +removeStock(Quantity)
+        +adjustStock(Quantity)
         +isBelowMinimum() boolean
+        +stockValue() Money
+    }
+    class ProductBuilder {
+        +sku(String) ProductBuilder
+        +price(String) ProductBuilder
+        +build() Product
     }
     class Sku {
         <<record>>
         +String value
+    }
+    class Category {
+        <<record>>
+        +String name
     }
     class Money {
         <<record>>
@@ -191,26 +210,70 @@ classDiagram
     class Quantity {
         <<record>>
         +int value
+        +add(Quantity) Quantity
+        +subtract(Quantity) Quantity
     }
     class StockMovement {
         <<sealed interface>>
     }
-    class Inbound
-    class Outbound
-    class Adjustment
+    class Inbound {
+        <<record>>
+    }
+    class Outbound {
+        <<record>>
+    }
+    class Adjustment {
+        <<record>>
+    }
+    class PricingPolicy {
+        <<interface>>
+        +totalFor(Product, Quantity) Money
+    }
+    class BulkDiscount {
+        <<record>>
+    }
+    class ClearanceDiscount {
+        <<record>>
+    }
+    class BestPrice {
+        <<record>>
+    }
     class ProductRepository {
         <<interface>>
-        +findBySku(Sku) Optional~Product~
         +save(Product)
+        +findBySku(Sku) Optional~Product~
+        +findAll() List~Product~
+    }
+    class StockMovementRepository {
+        <<interface>>
+        +append(StockMovement)
+    }
+    class StockLevelListener {
+        <<interface>>
+        +onBelowMinimum(Product)
+    }
+    class StockService {
+        +receive(Sku, Quantity, String) StockMovement
+        +dispatch(Sku, Quantity, String) StockMovement
+        +adjust(Sku, Quantity, String) StockMovement
     }
 
     Product *-- Sku
+    Product *-- Category
     Product *-- Money
     Product *-- Quantity
+    ProductBuilder ..> Product : cria
     StockMovement <|.. Inbound
     StockMovement <|.. Outbound
     StockMovement <|.. Adjustment
-    ProductRepository ..> Product
+    PricingPolicy <|.. BulkDiscount
+    PricingPolicy <|.. ClearanceDiscount
+    PricingPolicy <|.. BestPrice
+    BestPrice o-- PricingPolicy : escolhe o menor
+    StockService ..> ProductRepository
+    StockService ..> StockMovementRepository
+    StockService --> StockLevelListener : avisa
+    StockService ..> StockMovement : registra
 ```
 
 > 💡 **Por que `BigDecimal` para dinheiro?** `double` não representa valores como `0.1` com exatidão. `0.1 + 0.2` dá `0.30000000000000004`, um erro inaceitável em estoque e preço.
@@ -278,7 +341,7 @@ O log vai para `logs/nidavellir.log` (SLF4J + Logback, um arquivo por dia); avis
 | **Java moderno** | `record`, `sealed interface`, pattern matching em `switch`, `Optional`, text blocks |
 | **Collections & Streams** | `List/Set/Map`, `groupingBy`, `partitioningBy`, `Collectors` |
 | **JDBC** | `PreparedStatement`, try-with-resources, `setAutoCommit(false)`, commit/rollback |
-| **Concorrência** | `ExecutorService`, virtual threads, thread-safety |
+| **Concorrência** | `ExecutorService`, thread-safety e quando virtual threads não ajudam (trabalho de CPU) |
 | **I/O** | `java.nio.file.Files`, CSV, JSON |
 | **Testes** | TDD no domínio, mocks com Mockito, testes de integração com banco temporário |
 | **Build & CI** | Maven Wrapper, JaCoCo, Spotless, GitHub Actions, jar executável |
@@ -303,7 +366,7 @@ O log vai para `logs/nidavellir.log` (SLF4J + Logback, um arquivo por dia); avis
 | Semana | Dias | Tema | Progresso |
 |---|---|---|---|
 | 1 | 01–05 | Fundação, domínio, Streams, JDBC + SQLite, transações | 🟧🟧🟧🟧🟧 |
-| 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | 🟧🟧🟧🟧⬜ |
+| 2 | 06–10 | Design patterns, CLI, Java moderno, importação paralela, qualidade e release | 🟧🟧🟧🟧🟧 |
 
 Detalhes no [ROADMAP.md](ROADMAP.md) · Mudanças no [CHANGELOG.md](CHANGELOG.md).
 
@@ -345,7 +408,33 @@ Para usar outro arquivo de banco:
 ./mvnw -q compile exec:java -Dexec.args="estoque.db"
 ```
 
-> 📦 A partir do Dia 10 haverá um **jar executável** na aba *Releases*: `java -jar nidavellir.jar`.
+### Só com o Java instalado
+
+Na página da [release v1.0.0](https://github.com/GustavoThe01/nidavellir-inventory/releases/tag/v1.0.0) está o
+`nidavellir.jar`, com as dependências dentro (SQLite JDBC, SLF4J e Logback). Precisa apenas do Java 21:
+
+```bash
+java -jar nidavellir.jar
+```
+
+O argumento opcional é o arquivo do banco, como no `exec:java`:
+
+```bash
+java -jar nidavellir.jar estoque.db
+```
+
+Para gerar o mesmo jar a partir do código (fica em `target/nidavellir.jar`, com 13 MB):
+
+```bash
+./mvnw -q package -DskipTests
+```
+
+Antes de abrir um pull request, formato o código com o Spotless (o `verify` falha se algum arquivo estiver fora
+do padrão):
+
+```bash
+./mvnw spotless:apply
+```
 
 ---
 
@@ -362,7 +451,22 @@ Para usar outro arquivo de banco:
 | CLI | Sessões inteiras simuladas com texto: entrada inválida, alerta, erro de banco | ✅ 9 testes |
 | Relatórios e exportação | `groupingBy`, record patterns, CSV e JSON em pasta temporária | ✅ 9 testes |
 | Importação em lote | Validação linha a linha, duplicados, 1 × 4 threads com o mesmo resultado, batch no SQLite | ✅ 10 testes |
-| Cobertura | JaCoCo (meta ≥ 80% no domínio) | ⏳ Dia 10 |
+| Cobertura | JaCoCo, com meta de 80% das linhas no domínio conferida no `verify` | ✅ 88% no total |
+
+**Cobertura de linhas** medida pelo JaCoCo (relatório em `target/site/jacoco/index.html` depois do `verify`):
+
+| Pacote | Cobertura |
+|---|---:|
+| `domain` | 89,8% |
+| `domain.pricing` | 93,1% |
+| `application` | 97,9% |
+| `infrastructure` | 87,7% |
+| `cli` | 77,1% |
+| **Total** | **88,0%** |
+
+A regra do JaCoCo vale para os pacotes de domínio: se a cobertura de linhas de `domain` ou `domain.pricing` cair
+abaixo de 80%, o `./mvnw verify` falha, e o CI junto com ele. A CLI tem a menor cobertura porque parte dela só
+roda com um terminal de verdade (o laço do menu e a saída do programa).
 
 ---
 
@@ -382,7 +486,7 @@ nidavellir-inventory/
 │   │   ├── infrastructure/           # ✅ repositórios e transação com JDBC + SQLite
 │   │   └── cli/                      # ✅ menu com Command, entrada validada e erros centralizados
 │   └── test/java/...                 # ✅ testes
-├── pom.xml
+├── pom.xml                           # ✅ JaCoCo, Spotless e shade (jar executável)
 ├── mvnw · mvnw.cmd
 ├── CHANGELOG.md
 └── ROADMAP.md
@@ -403,12 +507,12 @@ Mantenho aqui um checklist vivo do que ainda vou incrementar neste repositório.
 - [x] Menu interativo com Command (Dia 07)
 - [x] `sealed` + pattern matching, exportação CSV/JSON (Dia 08)
 - [x] Importação em lote com validação por linha, processamento paralelo e logging (Dia 09)
-- [ ] JaCoCo, Spotless, jar executável e release `v1.0.0` (Dia 10)
+- [x] JaCoCo, Spotless, jar executável e release `v1.0.0` (Dia 10)
 
 **README**
 - [ ] GIF do menu da CLI em funcionamento
-- [ ] Badge de cobertura (JaCoCo / Codecov)
-- [ ] Atualizar "Em números" e a tabela de testes com valores reais
+- [x] Badge de cobertura (valor do JaCoCo na versão 1.0.0)
+- [x] Atualizar "Em números" e a tabela de testes com valores reais
 - [ ] Definir e adicionar uma licença (`LICENSE`)
 - [ ] Versão em inglês do README
 

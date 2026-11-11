@@ -62,10 +62,10 @@
 - **Conceitos:** thread-safety, condições de corrida, batch insert
 
 ### Dia 10 — Qualidade e release
-- [ ] JaCoCo (meta ≥ 80% no domínio) e formatação com Spotless
-- [ ] Diagrama de classes (Mermaid) no README
-- [ ] Jar executável (`maven-shade-plugin`) + seção "Como rodar"
-- [ ] `CHANGELOG.md` + tag `v1.0.0` + GitHub Release com o jar
+- [x] JaCoCo (meta ≥ 80% no domínio) e formatação com Spotless
+- [x] Diagrama de classes (Mermaid) no README
+- [x] Jar executável (`maven-shade-plugin`) + seção "Como rodar"
+- [x] `CHANGELOG.md` + tag `v1.0.0` + GitHub Release com o jar
 - **Conceitos:** empacotamento, versionamento semântico
 
 ## Ideias de evolução (opcional)

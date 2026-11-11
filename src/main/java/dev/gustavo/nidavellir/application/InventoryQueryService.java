@@ -27,9 +27,7 @@ public final class InventoryQueryService {
 
     /** Valor de todo o estoque: soma de preço × quantidade de cada produto. */
     public Money totalStockValue() {
-        return products.findAll().stream()
-                .map(Product::stockValue)
-                .reduce(Money.ZERO, Money::add);
+        return products.findAll().stream().map(Product::stockValue).reduce(Money.ZERO, Money::add);
     }
 
     /** Produtos a repor, começando pelos que têm o maior déficit em relação ao mínimo. */

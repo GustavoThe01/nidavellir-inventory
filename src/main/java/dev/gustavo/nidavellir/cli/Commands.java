@@ -7,7 +7,6 @@ import dev.gustavo.nidavellir.application.InventoryReports.CategoryReport;
 import dev.gustavo.nidavellir.application.InventoryReports.MovementSummary;
 import dev.gustavo.nidavellir.application.ProductImportService;
 import dev.gustavo.nidavellir.application.ProductImportService.ImportReport;
-import dev.gustavo.nidavellir.infrastructure.CsvProductFile;
 import dev.gustavo.nidavellir.application.ProductRepository;
 import dev.gustavo.nidavellir.application.StockService;
 import dev.gustavo.nidavellir.domain.Category;
@@ -16,6 +15,7 @@ import dev.gustavo.nidavellir.domain.Product;
 import dev.gustavo.nidavellir.domain.Quantity;
 import dev.gustavo.nidavellir.domain.Sku;
 import dev.gustavo.nidavellir.domain.StockMovement;
+import dev.gustavo.nidavellir.infrastructure.CsvProductFile;
 import dev.gustavo.nidavellir.infrastructure.ReportExporter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,12 +31,11 @@ import java.util.Map;
  */
 public final class Commands {
 
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.ROOT)
-            .withZone(ZoneId.of("America/Fortaleza"));
+    private static final DateTimeFormatter WHEN =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.ROOT).withZone(ZoneId.of("America/Fortaleza"));
     private static final String ROW = "%-10s %-28s %-14s %12s %8s %8s";
 
-    private Commands() {
-    }
+    private Commands() {}
 
     public record ListProducts(ProductRepository products) implements Command {
 
@@ -111,7 +110,9 @@ public final class Commands {
         @Override
         public void execute(Terminal terminal) {
             StockMovement movement = stock.adjust(
-                    terminal.sku("SKU: "), Quantity.of(terminal.integer("Quantidade contada: ", 0)), terminal.text("Motivo: "));
+                    terminal.sku("SKU: "),
+                    Quantity.of(terminal.integer("Quantidade contada: ", 0)),
+                    terminal.text("Motivo: "));
             terminal.println("✓ Estoque ajustado para " + movement.stockAfter() + ".");
         }
     }
@@ -131,16 +132,17 @@ public final class Commands {
                 return;
             }
             terminal.println("%-16s %-10s %8s %8s  %s".formatted("Quando", "Tipo", "Qtd.", "Saldo", "Motivo"));
-            history.forEach(movement -> terminal.println("%-16s %-10s %8s %8s  %s".formatted(
-                    WHEN.format(movement.occurredAt()),
-                    label(movement),
-                    movement.quantity(),
-                    movement.stockAfter(),
-                    movement.reason())));
+            history.forEach(movement -> terminal.println("%-16s %-10s %8s %8s  %s"
+                    .formatted(
+                            WHEN.format(movement.occurredAt()),
+                            label(movement),
+                            movement.quantity(),
+                            movement.stockAfter(),
+                            movement.reason())));
 
             MovementSummary summary = InventoryReports.summarize(history);
-            terminal.println("Total: %d unidade(s) de entrada, %d de saída e %d ajuste(s).".formatted(
-                    summary.inboundUnits(), summary.outboundUnits(), summary.adjustments()));
+            terminal.println("Total: %d unidade(s) de entrada, %d de saída e %d ajuste(s)."
+                    .formatted(summary.inboundUnits(), summary.outboundUnits(), summary.adjustments()));
         }
 
         private static String label(StockMovement movement) {
@@ -195,10 +197,17 @@ public final class Commands {
                 return;
             }
             String row = "%-16s %8s %8s %6s %6s %8s %14s %8s";
-            terminal.println(row.formatted("Categoria", "Produtos", "Unidades", "Mín.", "Máx.", "Média", "Valor", "Repor"));
-            lines.forEach(line -> terminal.println(row.formatted(line.category(), line.products(), line.units(),
-                    line.minimumStock(), line.maximumStock(), "%.1f".formatted(line.averageStock()),
-                    line.stockValue(), line.belowMinimum())));
+            terminal.println(
+                    row.formatted("Categoria", "Produtos", "Unidades", "Mín.", "Máx.", "Média", "Valor", "Repor"));
+            lines.forEach(line -> terminal.println(row.formatted(
+                    line.category(),
+                    line.products(),
+                    line.units(),
+                    line.minimumStock(),
+                    line.maximumStock(),
+                    "%.1f".formatted(line.averageStock()),
+                    line.stockValue(),
+                    line.belowMinimum())));
         }
     }
 
@@ -211,7 +220,8 @@ public final class Commands {
 
         @Override
         public void execute(Terminal terminal) {
-            Path folder = terminal.ask("Pasta de destino (Enter para \"relatorios\"): ",
+            Path folder = terminal.ask(
+                    "Pasta de destino (Enter para \"relatorios\"): ",
                     value -> Path.of(value.isEmpty() ? "relatorios" : value));
             List<CategoryReport> lines = reports.byCategory();
             Path csv = exporter.exportCsv(lines, folder.resolve("estoque-por-categoria.csv"));
@@ -243,19 +253,23 @@ public final class Commands {
             });
 
             ImportReport report = importer.importLines(CsvProductFile.read(file));
-            terminal.println("✓ %d de %d linha(s) importada(s) em %d ms.".formatted(
-                    report.imported(), report.read(), report.elapsed().toMillis()));
+            terminal.println("✓ %d de %d linha(s) importada(s) em %d ms."
+                    .formatted(
+                            report.imported(), report.read(), report.elapsed().toMillis()));
             if (report.errors().isEmpty()) {
                 return;
             }
 
-            terminal.println("✗ %d linha(s) recusada(s):".formatted(report.errors().size()));
-            report.errors().stream().limit(ERRORS_ON_SCREEN)
+            terminal.println(
+                    "✗ %d linha(s) recusada(s):".formatted(report.errors().size()));
+            report.errors().stream()
+                    .limit(ERRORS_ON_SCREEN)
                     .forEach(error -> terminal.println("  linha %d: %s".formatted(error.line(), error.message())));
             if (report.errors().size() > ERRORS_ON_SCREEN) {
                 terminal.println("  ... e mais %d.".formatted(report.errors().size() - ERRORS_ON_SCREEN));
             }
-            terminal.println("Relatório completo: " + CsvProductFile.writeErrors(file, report.errors()).toAbsolutePath());
+            terminal.println("Relatório completo: "
+                    + CsvProductFile.writeErrors(file, report.errors()).toAbsolutePath());
         }
     }
 
@@ -285,8 +299,14 @@ public final class Commands {
         terminal.println(ROW.formatted("SKU", "Nome", "Categoria", "Preço", "Estoque", "Mínimo"));
         for (Product product : products) {
             String flag = product.isBelowMinimum() ? " ⚠" : "";
-            terminal.println(ROW.formatted(product.sku(), product.name(), product.category(), product.price(),
-                    product.stock(), product.minimumStock()) + flag);
+            terminal.println(ROW.formatted(
+                            product.sku(),
+                            product.name(),
+                            product.category(),
+                            product.price(),
+                            product.stock(),
+                            product.minimumStock())
+                    + flag);
         }
     }
 }

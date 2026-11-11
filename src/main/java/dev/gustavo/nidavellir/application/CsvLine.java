@@ -6,8 +6,7 @@ import java.util.List;
 /** Divide uma linha de CSV (RFC 4180): vírgula separa campos, e um campo entre aspas pode conter vírgula e aspas duplicadas. */
 final class CsvLine {
 
-    private CsvLine() {
-    }
+    private CsvLine() {}
 
     static List<String> split(String line) {
         List<String> fields = new ArrayList<>();

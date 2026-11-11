@@ -10,8 +10,7 @@ import java.util.List;
 /** Implementações de {@link PricingPolicy}. */
 public final class Policies {
 
-    private Policies() {
-    }
+    private Policies() {}
 
     /** Desconto para compras a partir de uma quantidade mínima (atacado). */
     public record BulkDiscount(int minimumQuantity, int percent) implements PricingPolicy {

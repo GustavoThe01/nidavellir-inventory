@@ -38,8 +38,8 @@ public abstract class ProductRepositoryContract {
     @Test
     @DisplayName("guarda e devolve todos os campos")
     void keepsAllFields() {
-        Product original = Product.create(
-                Sku.of("BG-001"), "Bigorna", Category.of("Forja"), Money.of("1249.90"), Quantity.of(3));
+        Product original =
+                Product.create(Sku.of("BG-001"), "Bigorna", Category.of("Forja"), Money.of("1249.90"), Quantity.of(3));
         original.addStock(Quantity.of(7));
 
         repository().save(original);
@@ -58,7 +58,8 @@ public abstract class ProductRepositoryContract {
         repository().save(product("MJ-001", "Martelo"));
         repository().save(product("MJ-001", "Martelo novo"));
 
-        assertThat(repository().findAll()).singleElement()
+        assertThat(repository().findAll())
+                .singleElement()
                 .satisfies(found -> assertThat(found.name()).isEqualTo("Martelo novo"));
     }
 
@@ -68,7 +69,8 @@ public abstract class ProductRepositoryContract {
         repository().save(product("ZZ-001", "Zarabatana"));
         repository().save(product("AA-001", "Anel"));
 
-        assertThat(repository().findAll()).extracting(found -> found.sku().value())
+        assertThat(repository().findAll())
+                .extracting(found -> found.sku().value())
                 .containsExactly("AA-001", "ZZ-001");
     }
 

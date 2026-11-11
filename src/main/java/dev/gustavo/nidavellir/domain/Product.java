@@ -46,8 +46,8 @@ public final class Product {
     }
 
     /** Reconstrói um produto já existente a partir da persistência, com as mesmas validações do cadastro. */
-    public static Product restore(Sku sku, String name, Category category, Money price, Quantity stock,
-                                  Quantity minimumStock) {
+    public static Product restore(
+            Sku sku, String name, Category category, Money price, Quantity stock, Quantity minimumStock) {
         return new Product(sku, name, category, price, stock, minimumStock);
     }
 
@@ -124,8 +124,8 @@ public final class Product {
         }
         String stripped = name.strip();
         if (stripped.length() < NAME_MIN_LENGTH || stripped.length() > NAME_MAX_LENGTH) {
-            throw new InvalidValueException("O nome do produto deve ter entre %d e %d caracteres."
-                    .formatted(NAME_MIN_LENGTH, NAME_MAX_LENGTH));
+            throw new InvalidValueException(
+                    "O nome do produto deve ter entre %d e %d caracteres.".formatted(NAME_MIN_LENGTH, NAME_MAX_LENGTH));
         }
         return stripped;
     }

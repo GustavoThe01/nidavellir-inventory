@@ -66,13 +66,13 @@ class JdbcProductRepositoryTest extends ProductRepositoryContract {
     @Test
     @DisplayName("o preço é gravado em centavos, sem erro de arredondamento")
     void storesPriceInCents() throws SQLException {
-        Product product = Product.create(
-                Sku.of("MJ-001"), "Martelo", Category.of("Forja"), Money.of("19.99"), Quantity.ZERO);
+        Product product =
+                Product.create(Sku.of("MJ-001"), "Martelo", Category.of("Forja"), Money.of("19.99"), Quantity.ZERO);
         repository.save(product);
 
         try (Connection connection = connections.open();
-             Statement statement = connection.createStatement();
-             var row = statement.executeQuery("SELECT price_cents, typeof(price_cents) FROM product")) {
+                Statement statement = connection.createStatement();
+                var row = statement.executeQuery("SELECT price_cents, typeof(price_cents) FROM product")) {
             row.next();
             assertThat(row.getLong(1)).isEqualTo(1999L);
             assertThat(row.getString(2)).isEqualTo("integer");
@@ -85,7 +85,7 @@ class JdbcProductRepositoryTest extends ProductRepositoryContract {
         repository.save(product("MJ-001", "Martelo"));
 
         try (Connection connection = connections.open();
-             Statement statement = connection.createStatement()) {
+                Statement statement = connection.createStatement()) {
             assertThatThrownBy(() -> statement.executeUpdate("UPDATE product SET stock = -1"))
                     .isInstanceOf(SQLException.class)
                     .hasMessageContaining("CHECK");

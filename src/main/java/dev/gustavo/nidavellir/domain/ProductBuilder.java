@@ -12,8 +12,7 @@ public final class ProductBuilder {
     private Money price;
     private Quantity minimumStock = Quantity.ZERO;
 
-    ProductBuilder() {
-    }
+    ProductBuilder() {}
 
     public ProductBuilder sku(String value) {
         this.sku = Sku.of(value);

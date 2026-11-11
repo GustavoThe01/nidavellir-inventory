@@ -34,8 +34,7 @@ public final class NidavellirApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(NidavellirApp.class);
 
-    private NidavellirApp() {
-    }
+    private NidavellirApp() {}
 
     public static void main(String[] args) {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -45,16 +44,24 @@ public final class NidavellirApp {
         connections.initializeSchema();
 
         out.println(banner());
-        menu(new Terminal(in, out), new JdbcProductRepository(connections), new JdbcInventoryTransaction(connections),
-                Clock.systemDefaultZone(), exception -> LOG.error("Erro na operação do menu", exception)).run();
+        menu(
+                        new Terminal(in, out),
+                        new JdbcProductRepository(connections),
+                        new JdbcInventoryTransaction(connections),
+                        Clock.systemDefaultZone(),
+                        exception -> LOG.error("Erro na operação do menu", exception))
+                .run();
     }
 
     /** Monta o menu com as dependências recebidas. Os testes chamam este método com repositórios em memória. */
-    static Menu menu(Terminal terminal, ProductRepository products, InventoryTransaction transaction, Clock clock,
-                     java.util.function.Consumer<Exception> errorLog) {
-        StockLevelListener alert = product -> terminal.println(
-                "⚠ %s (%s) ficou abaixo do mínimo: %s de %s.".formatted(
-                        product.name(), product.sku(), product.stock(), product.minimumStock()));
+    static Menu menu(
+            Terminal terminal,
+            ProductRepository products,
+            InventoryTransaction transaction,
+            Clock clock,
+            java.util.function.Consumer<Exception> errorLog) {
+        StockLevelListener alert = product -> terminal.println("⚠ %s (%s) ficou abaixo do mínimo: %s de %s."
+                .formatted(product.name(), product.sku(), product.stock(), product.minimumStock()));
         StockService stock = new StockService(transaction, clock, List.of(alert));
         InventoryQueryService queries = new InventoryQueryService(products);
 
@@ -69,8 +76,10 @@ public final class NidavellirApp {
                 .register("8", new Commands.StockValue(queries))
                 .register("9", new Commands.CategoryReportCommand(new InventoryReports(products)))
                 .register("10", new Commands.ExportReport(new InventoryReports(products), new ReportExporter()))
-                .register("11", new Commands.ImportProducts(
-                        new ProductImportService(transaction, clock, Runtime.getRuntime().availableProcessors())))
+                .register(
+                        "11",
+                        new Commands.ImportProducts(new ProductImportService(
+                                transaction, clock, Runtime.getRuntime().availableProcessors())))
                 .register("0", new Commands.Exit());
     }
 

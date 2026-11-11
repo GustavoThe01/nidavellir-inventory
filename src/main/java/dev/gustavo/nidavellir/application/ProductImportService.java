@@ -42,11 +42,9 @@ public final class ProductImportService {
     private static final int COLUMNS = 6;
 
     /** Uma linha do arquivo, já sem o cabeçalho, com o número original. */
-    public record ImportLine(int number, String content) {
-    }
+    public record ImportLine(int number, String content) {}
 
-    public record ImportError(int line, String message) {
-    }
+    public record ImportError(int line, String message) {}
 
     public record ImportReport(int read, int imported, List<ImportError> errors, Duration elapsed) {
 
@@ -55,8 +53,7 @@ public final class ProductImportService {
         }
     }
 
-    private record Parsed(int line, Product product, int initialStock, String error) {
-    }
+    private record Parsed(int line, Product product, int initialStock, String error) {}
 
     private final InventoryTransaction transaction;
     private final StockMovementFactory movements;
@@ -91,7 +88,8 @@ public final class ProductImportService {
             for (Parsed item : fresh) {
                 products.add(item.product());
                 if (item.initialStock() > 0) {
-                    entries.add(movements.inbound(item.product(), Quantity.of(item.initialStock()), "Importação inicial"));
+                    entries.add(
+                            movements.inbound(item.product(), Quantity.of(item.initialStock()), "Importação inicial"));
                 }
             }
             stores.products().saveAll(products);
@@ -102,7 +100,10 @@ public final class ProductImportService {
         errors.sort((left, right) -> Integer.compare(left.line(), right.line()));
         Duration elapsed = Duration.ofNanos(System.nanoTime() - start);
         if (!errors.isEmpty()) {
-            LOG.warn("Importação com {} linha(s) recusada(s); a primeira na linha {}", errors.size(), errors.getFirst().line());
+            LOG.warn(
+                    "Importação com {} linha(s) recusada(s); a primeira na linha {}",
+                    errors.size(),
+                    errors.getFirst().line());
         }
         LOG.info("Importação concluída: {} de {} linhas em {} ms", imported, lines.size(), elapsed.toMillis());
         return new ImportReport(lines.size(), imported, errors, elapsed);
@@ -195,8 +196,10 @@ public final class ProductImportService {
             }
             Integer first = firstLine.putIfAbsent(item.product().sku(), item.line());
             if (first != null) {
-                errors.add(new ImportError(item.line(), "SKU %s repetido no arquivo (primeiro na linha %d)"
-                        .formatted(item.product().sku(), first)));
+                errors.add(new ImportError(
+                        item.line(),
+                        "SKU %s repetido no arquivo (primeiro na linha %d)"
+                                .formatted(item.product().sku(), first)));
                 continue;
             }
             accepted.add(item);
@@ -210,7 +213,9 @@ public final class ProductImportService {
         List<Parsed> fresh = new ArrayList<>(accepted.size());
         for (Parsed item : accepted) {
             if (existing.contains(item.product().sku())) {
-                errors.add(new ImportError(item.line(), "SKU %s já está cadastrado".formatted(item.product().sku())));
+                errors.add(new ImportError(
+                        item.line(),
+                        "SKU %s já está cadastrado".formatted(item.product().sku())));
             } else {
                 fresh.add(item);
             }

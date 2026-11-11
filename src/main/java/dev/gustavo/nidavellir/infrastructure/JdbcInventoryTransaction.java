@@ -24,8 +24,7 @@ public final class JdbcInventoryTransaction implements InventoryTransaction {
             connection.setAutoCommit(false);
             try {
                 T result = work.apply(new Stores(
-                        JdbcProductRepository.boundTo(connection),
-                        JdbcStockMovementRepository.boundTo(connection)));
+                        JdbcProductRepository.boundTo(connection), JdbcStockMovementRepository.boundTo(connection)));
                 connection.commit();
                 return result;
             } catch (RuntimeException | SQLException exception) {

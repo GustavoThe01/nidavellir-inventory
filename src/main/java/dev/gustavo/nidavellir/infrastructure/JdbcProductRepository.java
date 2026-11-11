@@ -120,7 +120,7 @@ public final class JdbcProductRepository implements ProductRepository {
         try {
             return scope.run(connection -> {
                 try (PreparedStatement statement = connection.prepareStatement(SELECT_ALL);
-                     ResultSet row = statement.executeQuery()) {
+                        ResultSet row = statement.executeQuery()) {
                     List<Product> products = new ArrayList<>();
                     while (row.next()) {
                         products.add(toProduct(row));

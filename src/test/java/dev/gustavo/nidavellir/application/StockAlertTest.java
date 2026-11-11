@@ -41,7 +41,9 @@ class StockAlertTest {
 
             @Override
             public List<StockMovement> findBySku(Sku sku) {
-                return history.stream().filter(movement -> movement.sku().equals(sku)).toList();
+                return history.stream()
+                        .filter(movement -> movement.sku().equals(sku))
+                        .toList();
             }
         };
 
@@ -53,12 +55,21 @@ class StockAlertTest {
 
     @BeforeEach
     void setUp() {
-        Product hammer = Product.builder().sku("MJ-001").name("Martelo").category("Forja").price("10").minimumStock(5).build();
+        Product hammer = Product.builder()
+                .sku("MJ-001")
+                .name("Martelo")
+                .category("Forja")
+                .price("10")
+                .minimumStock(5)
+                .build();
         hammer.addStock(Quantity.of(10));
         products.save(hammer);
-        service = new StockService(inMemory, CLOCK, List.of(
-                product -> alerts.add("compras:" + product.sku()),
-                product -> alerts.add("log:" + product.stock())));
+        service = new StockService(
+                inMemory,
+                CLOCK,
+                List.of(
+                        product -> alerts.add("compras:" + product.sku()),
+                        product -> alerts.add("log:" + product.stock())));
     }
 
     @Test

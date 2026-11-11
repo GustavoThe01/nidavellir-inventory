@@ -20,7 +20,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 class PricingPolicyTest {
 
     private static Product hammer(int stock) {
-        Product product = Product.builder().sku("MJ-001").name("Martelo").category("Forja").price("19.99").build();
+        Product product = Product.builder()
+                .sku("MJ-001")
+                .name("Martelo")
+                .category("Forja")
+                .price("19.99")
+                .build();
         if (stock > 0) {
             product.addStock(Quantity.of(stock));
         }
@@ -61,8 +66,8 @@ class PricingPolicyTest {
     @Test
     @DisplayName("melhor preço escolhe a política mais barata, sem acumular descontos")
     void bestPrice() {
-        PricingPolicy best = new BestPrice(List.of(
-                PricingPolicy.REGULAR, new BulkDiscount(2, 5), new ClearanceDiscount(10, 15)));
+        PricingPolicy best =
+                new BestPrice(List.of(PricingPolicy.REGULAR, new BulkDiscount(2, 5), new ClearanceDiscount(10, 15)));
 
         assertThat(best.totalFor(hammer(0), Quantity.of(2))).isEqualTo(Money.of("37.98"));
         assertThat(best.totalFor(hammer(20), Quantity.of(2))).isEqualTo(Money.of("33.98"));

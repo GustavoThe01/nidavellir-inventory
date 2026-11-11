@@ -25,7 +25,8 @@ public final class ReportExporter {
 
     public Path exportCsv(List<CategoryReport> reports, Path file) {
         String rows = reports.stream()
-                .map(report -> String.join(",",
+                .map(report -> String.join(
+                        ",",
                         csv(report.category()),
                         Long.toString(report.products()),
                         Long.toString(report.units()),
@@ -51,9 +52,14 @@ public final class ReportExporter {
                             "valorEmEstoque": %s,
                             "abaixoDoMinimo": %d
                           }""".formatted(
-                        json(report.category()), report.products(), report.units(), report.minimumStock(),
-                        report.maximumStock(), String.format(Locale.ROOT, "%.2f", report.averageStock()),
-                        report.stockValue().amount().toPlainString(), report.belowMinimum()))
+                                json(report.category()),
+                                report.products(),
+                                report.units(),
+                                report.minimumStock(),
+                                report.maximumStock(),
+                                String.format(Locale.ROOT, "%.2f", report.averageStock()),
+                                report.stockValue().amount().toPlainString(),
+                                report.belowMinimum()))
                 .collect(Collectors.joining(",\n"));
         return write(file, reports.isEmpty() ? "[]\n" : "[\n" + items + "\n]\n");
     }

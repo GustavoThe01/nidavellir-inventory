@@ -25,8 +25,7 @@ class QuantityTest {
     @Test
     @DisplayName("subtração que ficaria negativa é rejeitada")
     void rejectsNegativeResult() {
-        assertThatThrownBy(() -> Quantity.of(2).subtract(Quantity.of(3)))
-                .isInstanceOf(InvalidValueException.class);
+        assertThatThrownBy(() -> Quantity.of(2).subtract(Quantity.of(3))).isInstanceOf(InvalidValueException.class);
     }
 
     @Test

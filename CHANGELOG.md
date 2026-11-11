@@ -5,7 +5,22 @@ e [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [1.0.0] - 2026-11-11
+
+Primeira versão completa: os 10 dias do roadmap.
+
 ### Adicionado
+- JaCoCo 0.8.16: relatório de cobertura no `verify` e meta de 80% das linhas nos pacotes de domínio, que quebra o build se não for atingida.
+- Spotless 3.10.4 com palantir-java-format e remoção de imports sem uso; o `verify` falha com código fora do padrão.
+- `maven-shade-plugin`: `target/nidavellir.jar` executável, com as dependências dentro (`java -jar nidavellir.jar`).
+- Diagrama de classes completo no README (domínio, portas, estratégias de preço e serviço de estoque).
+- Cobertura medida: 88,0% das linhas no total, 89,8% em `domain` e 93,1% em `domain.pricing`.
+
+### Alterado
+- Versão do projeto de `0.1.0-SNAPSHOT` para `1.0.0`.
+- Código formatado pelo palantir-java-format (31 arquivos), sem mudança de comportamento.
+
+### Adicionado (Dias 01 a 09)
 - Projeto Maven com Java 21, JUnit 6, AssertJ e Mockito.
 - Pacotes `domain`, `application`, `infrastructure` e `cli`.
 - Ponto de entrada `NidavellirApp` com teste de fumaça.
@@ -46,3 +61,6 @@ e [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - `saveAll` e `appendAll` com `addBatch`/`executeBatch` nos repositórios JDBC.
 - Logging com SLF4J 2.0 e Logback 1.6: avisos no terminal e detalhe em `logs/nidavellir.log`, com um arquivo por dia.
 - 10 testes novos.
+
+[Não lançado]: https://github.com/GustavoThe01/nidavellir-inventory/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/GustavoThe01/nidavellir-inventory/releases/tag/v1.0.0

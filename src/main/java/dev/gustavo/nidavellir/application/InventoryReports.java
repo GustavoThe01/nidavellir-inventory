@@ -30,15 +30,12 @@ public final class InventoryReports {
             int maximumStock,
             double averageStock,
             Money stockValue,
-            long belowMinimum) {
-    }
+            long belowMinimum) {}
 
     /** Quanto entrou, quanto saiu e quantos ajustes houve no histórico de um produto. */
-    public record MovementSummary(int inboundUnits, int outboundUnits, int adjustments) {
-    }
+    public record MovementSummary(int inboundUnits, int outboundUnits, int adjustments) {}
 
-    private record ValueAndAlerts(Money value, long belowMinimum) {
-    }
+    private record ValueAndAlerts(Money value, long belowMinimum) {}
 
     private final ProductRepository products;
 
@@ -65,7 +62,8 @@ public final class InventoryReports {
                                         filtering(Product::isBelowMinimum, counting()),
                                         ValueAndAlerts::new),
                                 (stock, rest) -> report(stock, rest))))
-                .entrySet().stream()
+                .entrySet()
+                .stream()
                 .map(entry -> withCategory(entry.getKey(), entry.getValue()))
                 .toList();
     }
@@ -81,7 +79,8 @@ public final class InventoryReports {
         for (StockMovement movement : history) {
             switch (movement) {
                 case Inbound(var sku, var quantity, var stockAfter, var reason, var at) -> inbound += quantity.value();
-                case Outbound(var sku, var quantity, var stockAfter, var reason, var at) -> outbound += quantity.value();
+                case Outbound(var sku, var quantity, var stockAfter, var reason, var at) ->
+                    outbound += quantity.value();
                 case Adjustment adjustment -> adjustments++;
             }
         }
@@ -89,12 +88,26 @@ public final class InventoryReports {
     }
 
     private static CategoryReport report(IntSummaryStatistics stock, ValueAndAlerts rest) {
-        return new CategoryReport("", stock.getCount(), stock.getSum(), stock.getMin(), stock.getMax(),
-                stock.getAverage(), rest.value(), rest.belowMinimum());
+        return new CategoryReport(
+                "",
+                stock.getCount(),
+                stock.getSum(),
+                stock.getMin(),
+                stock.getMax(),
+                stock.getAverage(),
+                rest.value(),
+                rest.belowMinimum());
     }
 
     private static CategoryReport withCategory(String category, CategoryReport report) {
-        return new CategoryReport(category, report.products(), report.units(), report.minimumStock(),
-                report.maximumStock(), report.averageStock(), report.stockValue(), report.belowMinimum());
+        return new CategoryReport(
+                category,
+                report.products(),
+                report.units(),
+                report.minimumStock(),
+                report.maximumStock(),
+                report.averageStock(),
+                report.stockValue(),
+                report.belowMinimum());
     }
 }
